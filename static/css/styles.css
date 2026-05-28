@@ -1,0 +1,134 @@
+
+.index-body{
+  background-color: #80FF;
+
+}
+
+.index-body .container{
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  width: 80%;
+  height: 50vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0px 20px 50px  black;
+  border-radius: 15px;
+}
+.index-body .container h1{
+  display: flex;
+  justify-content: left;
+  padding: 10px;
+  color: purple;
+  font-size: 20px;
+
+}
+.index-body .container p{
+  text-align: left;
+  padding: 5px;
+  font-size: 15px;
+  margin-top: -10px;
+
+}
+
+.index-body .container a{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40%;
+  background-color: #8080EE;
+  height: 50px;
+  text-decoration: none;
+  border-radius: 15px;
+  color: white;
+  font-weight: bold;
+  transition: all 0.5s;
+}
+
+.index-body .container a:hover{
+  background-color: #1c1cca ;
+}
+
+
+.form-body{
+  background-color: #8080EE;
+}
+
+.form-body .form-container{
+  background: white;
+  width: 80%;
+  height: 80vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 15px;
+  box-shadow: 0px 20px 50px black ;
+}
+
+.form-body .form-container h1{
+  color: purple;
+  padding: 12px;
+  text-align: center;
+  font-size: 25px;
+}
+
+.form-body .form-container #form-id{
+  padding: 12px;
+
+}
+.form-body .form-container #form-id label{
+  width: 100%;
+
+}
+
+.form-body .form-container #form-id input{
+  width: 90%;
+  height: 5vh;
+  background-color: #FFFFE8;
+  border-radius: 10px;
+  border: none;
+  font-size: 25px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.form-body .form-container #form-id button{
+  background: #8080FF;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+  width: 40%;
+  height: 5vh;
+  border: none;
+  transition: all 0.5s;
+
+}
+
+.form-body .form-container #form-id button:hover{
+  background: #1c1cca;
+}
+
+.form-body .Pop-up{
+  background-color: white;
+  position: absolute;
+  width: 80%;
+  height: 50vh;
+  border-radius: 15px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  text-align: left;
+}
+
+.form-body .Pop-up #close-btn{
+  background-color: magenta;
+  border-radius: 18px;
+  color: white;
+  border: none;
+}

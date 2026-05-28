@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create KMW Account</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+</head>
+<body class="form-body">
+  <div class="form-container">
+    <h1>Create Account</h1>
+    <form method="post" id="form-id" action="/create-account">
+      <label for="name">Enter an username:</label>
+      <input type="text" name="username" id="username">
+      <label for="mail">Enter an email:</label>
+      <input type="text" name="mail" id="mail">
+      <label for="password">Enter a password</label>
+      <input type="password" name="password" id="password">
+      <button type="button" name="action" id="pre-btn">Create Account</button>
+    </form>
+  </div>
+
+  <div class="Pop-up" id="Pop-up">
+    <button type="button" id="close-btn">X</button>
+    <h1>Confirm your information</h1>
+    <p id="userKey"><strong>Username: </strong></p><br>
+    <p id="userValue"></p>
+    <p id="mailKey"><strong> Email: </strong></p><br>
+    <p id="mailValue"></p>
+    <p id="passKey"><strong>password: </strong></p><br>
+    <p id="passValue"></p>
+    <button type="submit" name="action" value="Confirm" id="confirmBtn" form="form-id">Confirm</button>
+  </div>
+</body>
+<script>
+  const popup = document.getElementById("Pop-up");
+  popup.style.display="none";
+  const prebtn = document.getElementById("pre-btn");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const form = document.getElementById("form-id");
+
+  
+  prebtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+
+    popup.style.display="block";
+    const closeBtn = document.getElementById('close-btn');
+
+    closeBtn.addEventListener("click", ()=>{
+      popup.style.display="none";
+    });
+  });
+
+  
+</script>
+</html>
