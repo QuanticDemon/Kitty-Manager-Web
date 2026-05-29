@@ -6,6 +6,7 @@
     <title>My Kitty Profile</title>
 </head>
 <body>
-    <h1>{{username}}' profile</h1>
+    {%if is_logged_in %}<h1>{{username}}'s profile</h1>{% endif%}
+    
 </body>
 </html>

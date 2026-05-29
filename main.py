@@ -81,8 +81,17 @@ class SQLite3(Storage):
         cursor.close()
         conn.close()
 
-        return bool(verificacion)
+        if verificacion:
 
+
+            return{
+                "id":verificacion[0],
+                "username": verificacion[1],
+                "mail": verificacion[2],
+                "password":verificacion[3]
+            }
+        else:
+            return False
 class Storage_Service:
     def __init__(self, storage:Storage):
         self.storage = storage
@@ -124,9 +133,21 @@ class User:
         sql3.start_tables()
         serviceStorage = Storage_Service(sql3)
         return serviceStorage.consult_data_service(userData_package)
-            
+
+
+#context_procesor
+@app.context_processor
+def inject_user_data():
+    return {
+        'username':session.get('username'),
+        'mail':session.get('user_mail'),
+        'is_logged_in':'user_id' in session
+    }
 
 #Flask
+
+
+
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -160,6 +181,9 @@ def login():
 
         if verification:
             
+            session['user_id'] = verification['id']
+            session['username'] = verification['username']
+            session['user_mail'] = verification['mail']
             return redirect(url_for("home"))
         else:
             return render_template("sign-in.html", verification = verification)
@@ -168,7 +192,9 @@ def login():
 
 @app.route('/my-profile', methods=["GET","POST"])
 def user_profile():
-    
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+
     return render_template('user-profile.html')
 
 
