@@ -154,8 +154,9 @@ def index():
 
 @app.route('/home')
 def home():
-    username = request.args.get("username")
-    return render_template("home.html", username = username)
+    if 'user_id' not in session:
+        return redirect(url_for("login"))
+    return render_template("home.html")
 @app.route('/create-account', methods=["GET", "POST"])
 def register():
     username = request.form.get("username")
@@ -196,6 +197,11 @@ def user_profile():
         return redirect(url_for("login"))
 
     return render_template('user-profile.html')
+
+@app.route('/my-projects', methods=["GET","POST"])
+
+def my_projects():
+    return render_template("my-projects.html")
 
 
 if __name__ == "__main__":
