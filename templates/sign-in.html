@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login KMW Account</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+</head>
+<body class="form-body">
+  <div class="form-container">
+    <h1>Sign In</h1>
+    <form method="post" id="form-id" action="/sign-in">
+      <label for="name">Enter you username or email:</label>
+      <input type="text" name="loginUser" id="username">
+      <label for="password">Enter your password:</label>
+      <input type="password" name="password" id="password">
+      <button type="submit" name="action" id="login-btn" value="login">Sign Up</button>
+      {% if verification == false %}
+        
+        <h4 style="color: red;font-weight: bold;">Las credenciales que ha ingresado son incorrectas</h4>
+        <p style="color: black;">Ingrese correctamente las credenciales o cree una cuenta nueva <a href="{{url_for('register')}}">Create account</a></p>
+        
+  {% endif %}
+    </form>
+  </div>
+
+  
+</body>
+<script>
+  
+  const signBtn = document.getElementById("login-btn");
+  const userToken = document.getElementById("username");
+  const password = document.getElementById("password");
+
+
+
+
+  
+</script>
+</html>

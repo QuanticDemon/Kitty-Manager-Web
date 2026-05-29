@@ -1,11 +1,15 @@
-
-.index-body{
-  background-color: #80FF;
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.index-body .container{
-  display: flex; 
+.index-body {
+  background-color: #80ff;
+}
+
+.index-body .container {
+  display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
@@ -16,31 +20,29 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0px 20px 50px  black;
+  box-shadow: 0px 20px 50px black;
   border-radius: 15px;
 }
-.index-body .container h1{
+.index-body .container h1 {
   display: flex;
   justify-content: left;
   padding: 10px;
   color: purple;
   font-size: 20px;
-
 }
-.index-body .container p{
+.index-body .container p {
   text-align: left;
   padding: 5px;
   font-size: 15px;
   margin-top: -10px;
-
 }
 
-.index-body .container a{
+.index-body .container a {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40%;
-  background-color: #8080EE;
+  background-color: #8080ee;
   height: 50px;
   text-decoration: none;
   border-radius: 15px;
@@ -49,16 +51,22 @@
   transition: all 0.5s;
 }
 
-.index-body .container a:hover{
-  background-color: #1c1cca ;
+.index-body .container a:hover {
+  background-color: #1c1cca;
 }
 
-
-.form-body{
-  background-color: #8080EE;
+.form-body {
+  background-color: #8080ee;
+}
+.form-bodyNew {
+  background-color: #3a3a4ab4;
 }
 
-.form-body .form-container{
+.form-bodyNew.form-containerNew {
+  background-color: #868687b4;
+}
+
+.form-body .form-container {
   background: white;
   width: 80%;
   height: 80vh;
@@ -67,38 +75,36 @@
   left: 50%;
   transform: translate(-50%, -50%);
   border-radius: 15px;
-  box-shadow: 0px 20px 50px black ;
+  box-shadow: 0px 20px 50px black;
 }
 
-.form-body .form-container h1{
+.form-body .form-container h1 {
   color: purple;
   padding: 12px;
   text-align: center;
   font-size: 25px;
 }
 
-.form-body .form-container #form-id{
+.form-body .form-container #form-id {
   padding: 12px;
-
 }
-.form-body .form-container #form-id label{
+.form-body .form-container #form-id label {
   width: 100%;
-
 }
 
-.form-body .form-container #form-id input{
-  width: 90%;
+.form-body .form-container #form-id input {
+  width: 95%;
   height: 5vh;
-  background-color: #FFFFE8;
+  background-color: #dedede;
   border-radius: 10px;
   border: none;
   font-size: 25px;
   font-weight: bold;
-  padding: 5px;
+  padding: 10px;
 }
 
-.form-body .form-container #form-id button{
-  background: #8080FF;
+.form-body .form-container #form-id button {
+  background: #8080ff;
   border-radius: 10px;
   margin-top: 10px;
   color: white;
@@ -106,14 +112,13 @@
   height: 5vh;
   border: none;
   transition: all 0.5s;
-
 }
 
-.form-body .form-container #form-id button:hover{
+.form-body .form-container #form-id button:hover {
   background: #1c1cca;
 }
 
-.form-body .Pop-up{
+.form-body .Pop-up {
   background-color: white;
   position: absolute;
   width: 80%;
@@ -124,11 +129,84 @@
   transform: translate(-50%, -50%);
   padding: 10px;
   text-align: left;
+  box-shadow: 10px 20px 50px rgba(0, 0, 0, 0.406);
 }
 
-.form-body .Pop-up #close-btn{
+.form-body .Pop-up #close-btn {
   background-color: magenta;
-  border-radius: 18px;
+  border-radius: 25px;
   color: white;
   border: none;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.form-body .Pop-up p {
+  margin-bottom: 10px;
+  margin-top: 0;
+  width: 100%;
+}
+
+.error-popup {
+  background-color: white;
+  border-radius: 18px;
+  width: 300px;
+  height: 45vh;
+}
+/*home styles*/
+.home {
+  background: #f1e0fc;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: white;
+  border-bottom: 2px solid #a408c7;
+  box-shadow: 10px 20px 50px #6e028638;
+  z-index: 1000;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+
+
+#themes {
+  background: white;
+  border: 2px solid rgb(119, 6, 104);
+  padding: 10px;
+}
+
+#themes:hover {
+  background: rgb(196, 196, 196);
+  border: 2px solid rgb(117, 117, 117);
+  padding: 10px;
+  cursor: pointer;
+}
+
+#themes:focus {
+  border-color: #8600b3;
+  box-shadow: 0 0 0 3px rgba(255, 0, 251, 0.25);
+}
+
+#themes option {
+  background: white;
+  border: 2px solid rgb(117, 117, 117);
+  padding: 10px;
 }

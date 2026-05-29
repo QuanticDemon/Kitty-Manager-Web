@@ -19,35 +19,45 @@
       <button type="button" name="action" id="pre-btn">Create Account</button>
     </form>
   </div>
-
+  <div id="overlay"></div>
   <div class="Pop-up" id="Pop-up">
     <button type="button" id="close-btn">X</button>
     <h1>Confirm your information</h1>
-    <p id="userKey"><strong>Username: </strong></p><br>
+    <p id="userKey"><strong>Username: </strong></p>
     <p id="userValue"></p>
-    <p id="mailKey"><strong> Email: </strong></p><br>
+    <p id="mailKey"><strong> Email: </strong></p>
     <p id="mailValue"></p>
-    <p id="passKey"><strong>password: </strong></p><br>
+    <p id="passKey"><strong>password: </strong></p>
     <p id="passValue"></p>
     <button type="submit" name="action" value="Confirm" id="confirmBtn" form="form-id">Confirm</button>
   </div>
 </body>
 <script>
   const popup = document.getElementById("Pop-up");
-  popup.style.display="none";
   const prebtn = document.getElementById("pre-btn");
   const confirmBtn = document.getElementById("confirmBtn");
   const form = document.getElementById("form-id");
-
-  
+  const username = document.getElementById("username");
+  const mail = document.getElementById("mail");
+  const password = document.getElementById("password");
+  popup.style.display="none";
   prebtn.addEventListener("click", (e)=>{
     e.preventDefault();
 
     popup.style.display="block";
-    const closeBtn = document.getElementById('close-btn');
+   
 
+    const userValue = document.getElementById("userValue");
+    const mailValue = document.getElementById("mailValue");
+    const passValue = document.getElementById("passValue");
+    const closeBtn = document.getElementById('close-btn');
+    
+    userValue.innerText = username.value;
+    mailValue.innerText = mail.value;
+    passValue.innerText = password.value;
     closeBtn.addEventListener("click", ()=>{
       popup.style.display="none";
+      
     });
   });
 

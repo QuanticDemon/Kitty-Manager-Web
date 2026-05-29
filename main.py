@@ -3,6 +3,7 @@ import uuid
 import hashlib
 import sqlite3
 app = Flask(__name__)
+app.secret_key = "ae6d651fa84a5ccc16a6574601db6dca/@*axmsao129n29330231j2091n39192s901292192012js9j102js019"
 #DB 
 
 class Storage:
@@ -16,7 +17,8 @@ class Storage:
 
     def update_data(self, datausr_package):
         pass
-
+    def consult_data(self, datausr_package):
+        pass
 class SQLite3(Storage):
     def conexion(self):
         return sqlite3.connect(self.datastorage_file)
@@ -56,7 +58,30 @@ class SQLite3(Storage):
         conn.commit()
         cursor.close()
         conn.close()
+    def consult_data(self, datausr_package):
 
+        conn = self.conexion()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            '''
+            SELECT * FROM users WHERE (username = ? OR mail = ?) AND password = ?
+            ''',(
+                datausr_package["userToken"],
+                datausr_package["userToken"],
+                datausr_package["password"]
+            )
+        )
+
+        verificacion = cursor.fetchone()
+
+        
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return bool(verificacion)
 
 class Storage_Service:
     def __init__(self, storage:Storage):
@@ -64,7 +89,8 @@ class Storage_Service:
 
     def save_data_service(self,datausr_package):
         return self.storage.save_data(datausr_package)
-
+    def consult_data_service(self, datausr_package):
+        return self.storage.consult_data(datausr_package)
 #Users
 class User:
     def create_account(self, name, mail, password):
@@ -85,7 +111,20 @@ class User:
         serviceStorage = Storage_Service(sql3)
         serviceStorage.save_data_service(user_package)
 
+    def sing_in(self, loginUser, password):
+        hashPass = hashlib.sha512(password.encode())
+        password = hashPass.hexdigest()
 
+        userData_package ={
+            "userToken":loginUser,
+            "password":password
+        }
+
+        sql3 = SQLite3("kitTest.db")
+        sql3.start_tables()
+        serviceStorage = Storage_Service(sql3)
+        return serviceStorage.consult_data_service(userData_package)
+            
 
 #Flask
 @app.route('/')
@@ -106,6 +145,32 @@ def register():
         if action == "Confirm":
             createUser = User().create_account(username, mail, password)
             return redirect(url_for("home", username=username))
+    
     return render_template("create-account.html")
+
+@app.route('/sign-in', methods=["GET", "POST"])
+def login():
+    userToken = request.form.get('loginUser')
+    password = request.form.get('password')
+    action = request.form.get('action')
+
+    if request.method == "POST" and action == "login":
+        
+        verification = User().sing_in(userToken, password)
+
+        if verification:
+            
+            return redirect(url_for("home"))
+        else:
+            return render_template("sign-in.html", verification = verification)
+    return render_template("sign-in.html")
+
+
+@app.route('/my-profile', methods=["GET","POST"])
+def user_profile():
+    
+    return render_template('user-profile.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)

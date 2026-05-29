@@ -1,11 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KMW Home</title>
-</head>
-<body>
-   <h1>Welcome, {{username}}</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KMW Home</title>
+
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='css/styles.css')}}"
+    />
+  </head>
+  <body class="home">
+    <nav class="navbar">
+      <!--bG9nbyBrbXcK-->
+      <div class="kmw-logo">
+        <img src="" alt="KMW" />
+      </div>
+      <!--bG9nbyBrbXcK-END-->
+      <!--bmF2IGxpbmtzCg==THEMES START-->
+      <div class="theme-changer">
+        <select name="themes" id="themes">
+          <option value="default" >Default KMW Theme</option>
+          <option value="user-theme">{{username}} Theme</option>
+        </select>
+      </div>
+      <!--bmF2IGxpbmtzCg==THEMES END-->
+      <!--bmF2IGxpbmtzCg== START-->
+      <ul class="nav-links">
+        <li>Home</li>
+        <li>My project</li>
+        <li>KMW Productivity</li>
+        <li>Settings</li>
+      </ul>
+      <!--bmF2IGxpbmtzCg== END-->
+      <!--bmF2IGxpbmtzCg==account START-->
+      <div class="account">
+        <img src="" alt="user-profile" />
+      </div>
+      <!--bmF2IGxpbmtzCg==account END-->
+    </nav>
+
+  <script>
+    const themes = document.getElementById("themes");
+
+   
+
+    themes.addEventListener("click", () =>{
+      if (themes.value == "user-theme"){
+        document.body.style.background="#000000"
+      }
+      else{
+        document.body.style.background="#f1e0fc"
+      }
+
+    });
+  </script>    
+  </body>
 </html>
