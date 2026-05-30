@@ -1,4 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+</head>
+<body class="profile">
+    {% if is_logged_in %}
+    <a id="back" href="{{url_for('home')}}">Regresar</a>
+    <div class="profile-container">
+        <button type="button" id="edit-profile">Edit profile</button>
+       
+        <div class="user-image">
+            
+            <img id="image-user" src="{{userpic}}" alt="">
+           
+        
+        </div>
+        
+       
+       
+        <h1 >{{username}}</h1>
+        
+            <label for="username">Username:</label>
+            <input  name="username" type="text" disabled placeholder="{{username}}">
+            <br>
+            <br>
+            <label for="mail">Email:</label>
+            <input  name="mail" type="text" disabled placeholder="{{mail}}">
+            <br>
+            <br>
+            <label for="password">Password:</label>
+            <input  name="password" type="password" disabled placeholder="***********">
+      
+    </div>
 
-    {% if is_logged_in %}<h1 >{{username}}'s profile</h1>
+<div id="pop-upchange" >
+        <button id="close-btn" type="button">x</button>
+        
+        <div class="current-image" id="current-image" >
+        <form action="/my-profile" method="post" enctype="multipart/form-data">
+                <input type="file" name="changeImage" id="changeImage" placeholder="Change image">
+                
+           
+            
+        </div>
+        
+                <label for="username">Username:</label>
+                <input  name="username" type="text" disabled placeholder="{{username}}" id="username"> <button type="button" id="nameEdit">Editar</button>
+                <br>
+                <br>
+                <label for="mail">Email:</label>
+                <input  name="mail" type="text" disabled placeholder="{{mail}}" id="mail"><button type="button" id="mailEdit">Editar</button>
+                <br>
+                <br>
+                <label for="password">Password:</label>
+                <input  name="password" type="password" disabled placeholder="***********" id="pass"><button type="button" id="passEdit">Editar</button>
+
+                <br>
+                <button type="submit" name="action" value="update">Editar</button>
+        </form>
+    </div>
+    
+
     {% endif%}
+    
+
+
+
+    <script>
+        const user_image = document.querySelector('.user-image');
+        const edit_button = document.getElementById('edit-profile');
+        const popup_change = document.getElementById('pop-upchange');
+        const closebtn =  document.getElementById('close-btn');
+        const nameInput = document.getElementById('username');
+        const mailInput = document.getElementById('mail');
+        const passInput = document.getElementById('pass');
+        const edit_name = document.getElementById('nameEdit');
+        const edit_mail = document.getElementById('mailEdit');
+        const edit_pass = document.getElementById('passEdit');
+        const clone = user_image.cloneNode(true);
+
+        edit_name.addEventListener("click", ()=>{
+                nameInput.removeAttribute("disabled")
+                nameInput.removeAttribute("placeholder")
+        });
+        edit_mail.addEventListener("click", ()=>{
+                mailInput.removeAttribute("disabled")
+                mailInput.removeAttribute("placeholder")
+        });
+        edit_pass.addEventListener("click", ()=>{
+                passInput.removeAttribute("disabled")
+                passInput.removeAttribute("placeholder")
+        });
+
+
+        edit_button.addEventListener("click", ()=>{
+            const currentimage = document.getElementById("current-image");
+            popup_change.style.display="block";
+            
+            currentimage.appendChild(clone);
+            
+           
+        });
+         closebtn.addEventListener("click", () => {
+               popup_change.style.display="none"; 
+               clone.removeChild(clone);
+            });
+    </script>
+</body>
+</html>
+    
 

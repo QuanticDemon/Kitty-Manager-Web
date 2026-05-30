@@ -1,3 +1,8 @@
+:root{
+  --background-color-default: #f1e0fc;
+}
+
+
 * {
   margin: 0;
   padding: 0;
@@ -156,7 +161,7 @@
 }
 /*home styles*/
 .home {
-  background: #f1e0fc;
+  background: var(--background-color-default);
 }
 
 .navbar {
@@ -213,7 +218,7 @@
 
 /*home css*/
 
-.home_h1, .projects_h1{
+.home_h1, .projects_h1, .ph1{
   position: absolute;
   top: 50%;
   left: 50%;
@@ -225,4 +230,114 @@
 .nav-links a.active{
   list-style: none;
   border-bottom: 2px solid magenta;
+
+}
+
+
+/*User profile css*/
+
+.profile{
+  min-height: 100vh;
+ 
+  
+  align-items: center;
+  background: var(--background-color-default);
+}
+
+.profile-container{
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background-color: var(--background-color-default);
+  padding: 10px;
+  width: 320px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+}
+
+.user-image{
+
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 140px;
+  height: 140px;
+} 
+
+
+.user-image img{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 3px solid magenta;
+  border-radius: 50%;
+
+}
+
+
+.edit-image{
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background-color: gray;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+  opacity: 0.8;
+  display: none;
+  cursor: pointer;
+}
+.edit-image svg{
+cursor: pointer;
+  width: 50%;
+  height: 50%;
+
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+
+  color: black;
+  cursor: pointer;
+}
+
+
+
+
+.user-image .edit-image:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+
+
+.profile-container h1{
+  color: magenta;
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+}
+
+#pop-upchange{
+  
+  position: absolute;
+  width: 80%;
+  height: 80vh;
+  border-radius: 10px;
+  background: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
 }
