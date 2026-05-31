@@ -31,11 +31,12 @@
         <li><a style="text-decoration: none;" href="{{url_for('my_projects')}}" class="{% if request.endpoint == 'my_projects'%} active {%endif%}">My projects</a></li>
         <li> <a style="text-decoration: none;" href="{{url_for('productivity_tools')}}" class="{% if request.endpoint == 'productivity_tools'%} active {%endif%}">KMW Productivity</a></li>
         <li><a style="text-decoration: none;" href="{{url_for('productivity_tools')}}" class="{% if request.endpoint == 'productivity_tools'%} active {%endif%}">Settings</a></li>
+        <li><a href="{{url_for('logout')}}">Log Out</a></li>
       </ul>
       <!--bmF2IGxpbmtzCg== END-->
       <!--bmF2IGxpbmtzCg==account START-->
       <div class="account">
-        <a href="{{url_for('user_profile')}}"><img src="" alt="user-profile" /></a>
+        <a href="{{url_for('user_profile')}}"><img  src="{{userpic}}" alt="user-profile" /></a>
       </div>
       <!--bmF2IGxpbmtzCg==account END-->
     </nav>

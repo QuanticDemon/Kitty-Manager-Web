@@ -95,7 +95,7 @@ class SQLite3(Storage):
 
         
 
-        conn.commit()
+        
         cursor.close()
         conn.close()
 
@@ -117,24 +117,34 @@ class SQLite3(Storage):
         fields_tochange = []
         values = []
 
-        if datausr_package['username']:
+        if datausr_package['username'] and datausr_package['username'].strip():
             fields_tochange.append("username = ?")
-            values.append(datausr_package['username'])
+            values.append(datausr_package['username'].strip())
         
-        if datausr_package['password']:
-            fields_tochange.append("password = ?")
-            values.append(datausr_package['password'])
+        if datausr_package['password'] and datausr_package['password'].strip():
+            fields_tochange.append("password = ?") 
+            values.append(datausr_package['password'].strip())
         
-        if datausr_package['user_mail']:
+        if datausr_package['user_mail'] and datausr_package['user_mail'].strip():
             fields_tochange.append("mail = ?")
-            values.append(datausr_package['user_mail'])
+            values.append(datausr_package['user_mail'].strip())
 
-        
+        if not fields_tochange:
+            conn.close()
+            return
+
         query = f"""
         UPDATE users
         SET {', '.join(fields_tochange)}
         WHERE id = ?
         """
+
+        user_id = session.get('user_id')
+        if not user_id:
+            conn.close()
+            
+
+
 
         values.append(session.get('user_id'))
         cursor.execute(query, values)
@@ -192,6 +202,11 @@ class Storage_Service:
 class User:
     def create_account(self, name, mail, password):
 
+        name = name.strip()
+        mail = mail.strip()
+        password=password.strip()
+
+
         hashPass = hashlib.sha512(password.encode())
         password = hashPass.hexdigest()
 
@@ -209,6 +224,9 @@ class User:
         serviceStorage.save_data_service(user_package)
 
     def sing_in(self, loginUser, password):
+        loginUser = loginUser.strip()
+        password = password.strip()
+
         hashPass = hashlib.sha512(password.encode())
         hashedPass = hashPass.hexdigest()
 
@@ -223,15 +241,22 @@ class User:
         serviceStorage = Storage_Service(sql3)
         return serviceStorage.consult_data_service(userData_package)
     def update(self, changes):
-        passwordHashing = hashlib.sha512(changes['password'].encode())
-        passwordUpdate = passwordHashing.hexdigest()
-
+        
         user_package_tochange ={
-            "username":changes['username'],
-            "user_mail":changes['mail'],
-            "password":passwordUpdate
+            "username":None,
+            "user_mail":None,
+            "password":None
 
         }
+        if changes.get('password'):
+
+            passwordHashing = hashlib.sha512(changes['password'].encode())
+            user_package_tochange["password"]= passwordHashing.hexdigest()
+        if changes.get('username'):
+            user_package_tochange['username'] = changes['username']
+        if changes.get('user_mail'):
+            user_package_tochange['user_mail'] = changes['user_mail']
+        
 
         sqlite3 = SQLite3("kitTest.db")
         sqlite3.start_tables()
@@ -305,7 +330,7 @@ def register():
 
 @app.route('/sign-in', methods=["GET", "POST"])
 def login():
-    session.clear()
+    
     userToken = request.form.get('loginUser')
     password = request.form.get('password')
     action = request.form.get('action')
@@ -332,8 +357,7 @@ def login():
 @app.route('/my-profile', methods=["GET","POST"])
 def user_profile():
 
-    print("METHOD", request.method)
-    print("FILES:", request.files)
+    
     if 'user_id' not in session:
         return redirect(url_for("login"))
 
@@ -360,21 +384,27 @@ def user_profile():
                 updateImg = User().messenger_images(filename)
 
 
-                
+        changes = {}
 
+        if username:changes['username'] = username
+        if mail: changes['user_mail'] = mail
+
+        if password:
+            hashPass = hashlib.sha512(password.encode())
+            changes['password'] = hashPass.hexdigest()
+        else:
+            changes['password'] = None
             
-        changes = {
-            "username": username if username else session.get("username"),
-            "mail": mail if mail else session.get("user_mail"),
-            "password": password if password else session.get("password")
+        
 
-        }
+        
     
         update_user = User()
         update_user.update(changes)
-        session['username'] = changes['username']
-        session['user_mail'] = changes["mail"]
-        session['password'] = changes['password']
+
+        if 'username' in changes: session['username'] = changes['username']
+        if 'user_mail' in changes: session['user_mail'] = changes['user_mail']
+        if 'password' in changes: session['password'] = changes['password']
        
     return render_template('user-profile.html')
 @app.route('/uploads/<filename>')
@@ -390,6 +420,12 @@ def my_projects():
 
 def productivity_tools():
     return render_template("productivity.html")
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     

@@ -14,13 +14,13 @@
       <input type="text" name="loginUser" id="username">
       <label for="password">Enter your password:</label>
       <input type="password" name="password" id="password">
-      <button type="submit" name="action" id="login-btn" value="login">Sign Up</button>
-      {% if verification == false %}
+      <button type="submit" name="action" id="login-btn" value="login">Sign In</button>
+      {% if verification == False %}
         
         <h4 style="color: red;font-weight: bold;">Las credenciales que ha ingresado son incorrectas</h4>
         <p style="color: black;">Ingrese correctamente las credenciales o cree una cuenta nueva <a href="{{url_for('register')}}">Create account</a></p>
         
-  {% endif %}
+      {% endif %}
     </form>
   </div>
 
