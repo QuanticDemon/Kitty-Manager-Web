@@ -13,10 +13,11 @@
         <button type="button" id="edit-profile">Edit profile</button>
     
         <div class="user-image">
-            
+        {% if userpic %} 
             <img id="image-user" src="{{userpic}}" alt="">
-           
-        
+        {% else %}
+            <img src="{{url_for('static', filename='images/defaultkittyprofile.png')}}" alt="">
+        {% endif %}
         </div>
         
        

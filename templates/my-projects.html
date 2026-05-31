@@ -23,16 +23,16 @@
          <h1>Configure su proyecto</h1>
         <form action="" method="post">
            <label for="name-project">Project Name</label>
-           <input type="text" name="name-project" required>
-           <label for="project-password">Password Project (optional) </label>
+           <input type="text" name="name-project" id="name-project" required>
+           <label for="project-password" id="project-password">Password Project (optional) </label>
            <input type="checkbox" id="pass-lock" name="pass-lock"><label for="pass-lock">Add Project Pass?</label>
            <div class="pass-wrapper">
-            <input type="password" id="pass_project" disabled >
+            <input type="password" id="pass_project" name="pass_project" disabled >
            <span id="toogle-password">👁</span>
            </div>
            
            
-           <button type="button" class="adder" id="adder_project">Add Project</button>
+           <button type="submit" class="adder" id="adder_project" name="action" value="addProject">Add Project</button>
         </form>
     </div>
 
@@ -45,12 +45,17 @@
     const toogle_password = document.getElementById('toogle-password');
     const adder_project = document.getElementById('adder_project');
     const projects_container = document.getElementById('projects-container');
+    const name_project = document.getElementById('name-project');
+    
     adder_project.addEventListener("click", () => {
         const project = document.createElement('div');
         project.className="project";
         projects_container.appendChild(project);
-        project.style.flex = "2";
-        
+        project.innerText=name_project.value;
+        popup_project.style.display="none";
+        if (password_project != ""){
+            project.innerText=name_project.value + "🔒";
+        }
     });
 
     toogle_password.addEventListener("click", ()=>{

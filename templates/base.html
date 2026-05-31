@@ -36,7 +36,12 @@
       <!--bmF2IGxpbmtzCg== END-->
       <!--bmF2IGxpbmtzCg==account START-->
       <div class="account">
-        <a href="{{url_for('user_profile')}}"><img  src="{{userpic}}" alt="user-profile" /></a>
+        <a href="{{url_for('user_profile')}}">
+        {% if userpic %}
+          <img  src="{{userpic}}" alt="user-profile" /></a>
+        {% else %}
+          <img src="{{url_for('static', filename='images/defaultkittyprofile.png')}}" alt="">
+        {% endif%}
       </div>
       <!--bmF2IGxpbmtzCg==account END-->
     </nav>

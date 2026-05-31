@@ -24,6 +24,8 @@ class Storage:
     
     def update_profile_pic(self,image):
         pass
+    def add_project(self, datapkg):
+        pass
 class SQLite3(Storage):
     def conexion(self):
         return sqlite3.connect(self.datastorage_file)
@@ -52,9 +54,20 @@ class SQLite3(Storage):
                 FOREIGN KEY (id_user) REFERENCES users(id)
 
 
-             )   
+             ) 
             '''
         )
+        cursor.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS projects(
+                    id_project TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    password TEXT,
+                    id_user TEXT,
+                    FOREIGN KEY (id_user) REFERENCES users(id)
+                    )
+                '''
+                )
         conn.commit()
         cursor.close()
         conn.close()
@@ -175,7 +188,7 @@ class SQLite3(Storage):
             
             
         image_upload = cursor.fetchone()
-
+    
 
 
         conn.commit()
@@ -186,6 +199,25 @@ class SQLite3(Storage):
         "image_profile": image,
         "id_user": session['user_id']
     }
+
+    def add_project(self, datapkg):
+        conn = self.conexion()
+        cursor = conn.cursor()
+        project_id = str(uuid.uuid4())
+        cursor.execute(
+            """
+            INSERT INTO projects(id_project, name, password,id_user) VALUES (?,?,?,?)
+            """, (
+                project_id,
+                datapkg["project_name"],
+                datapkg["password_project"],
+                session.get('user_id')
+                )
+        )
+
+        conn.commit()
+        cursor.close()
+        conn.close()
 class Storage_Service:
     def __init__(self, storage:Storage):
         self.storage = storage
@@ -198,7 +230,28 @@ class Storage_Service:
         return self.storage.update_data(datausr_package)
     def update_profile_pic_service(self, image):
         return self.storage.update_profile_pic(image)
+    def add_project_service(self, datapkg):
+        return self.storage.add_project(datapkg)
+#projects
+
+class Project:
+    def create_project(self, name, password):
+        hashing = hashlib.sha512(password.encode())
+        passHashed = hashing.hexdigest()
+        datapkg_project ={
+                "project_name":name,
+                "password_project":passHashed
+                }
+        
+        sql3 = SQLite3("kitTest.db")
+        sql3.start_tables()
+        serviceStorage=Storage_Service(sql3)
+        serviceStorage.add_project_service(datapkg_project)
+
+
+
 #Users
+
 class User:
     def create_account(self, name, mail, password):
 
@@ -382,6 +435,8 @@ def user_profile():
                 print(os.path.exists("uploads"))
                 file.save(f"uploads/{filename}")
                 updateImg = User().messenger_images(filename)
+                
+
 
 
         changes = {}
@@ -414,6 +469,13 @@ def uploads_filename(filename):
 @app.route('/my-projects', methods=["GET","POST"])
 
 def my_projects():
+    project_name = request.form.get("name-project")
+    password_project = request.form.get("pass_project")
+    action = request.form.get("action")
+    if request.method == "POST" and action == "addProject":
+        create_project=Project().create_project(project_name, password_project)
+
+
     return render_template("my-projects.html")
 
 @app.route('/productivity-tools', methods=["GET","POST"])
