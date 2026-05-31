@@ -417,6 +417,44 @@ cursor: pointer;
   flex-direction: column;
 
 }
+.projects .project:hover{
+  cursor: pointer;
+  background-color: #b642ff90;
+
+}
+.projects .project .delete_project{
+  position: absolute;
+  display: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  background-color: black;
+
+}
+
+
+.projects .project:hover .delete_project{
+  display: block;
+  top: 20%;
+  position: absolute;
+  left: 90%;
+  transform: translate(-50%,-50%);
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+
+}
+.projects .project:hover svg{
+ 
+  width: 30px;
+  height: 30px;
+
+}
+
+
+
 
 .projects .addprojects:hover{
   width: 310px;
@@ -530,4 +568,15 @@ border-radius: 18px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
+}
+
+.delete-project{
+  display: none;
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  width: 80%;
+  height: 50vh;
 }

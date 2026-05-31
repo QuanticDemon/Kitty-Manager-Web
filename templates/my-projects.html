@@ -21,7 +21,7 @@
     <div  id="pop-up-project" class="pop-up-project">
         <div id="close-btn">x</div>
          <h1>Configure su proyecto</h1>
-        <form action="" method="post">
+        <form action="/my-projects" method="post" id="form">
            <label for="name-project">Project Name</label>
            <input type="text" name="name-project" id="name-project" required>
            <label for="project-password" id="project-password">Password Project (optional) </label>
@@ -32,10 +32,19 @@
            </div>
            
            
-           <button type="submit" class="adder" id="adder_project" name="action" value="addProject">Add Project</button>
+           <button type="submit" class="adder" id="adder_project" name="action" value="addProject" >Add Project</button>
         </form>
     </div>
 
+    <div class="delete-project" style="display: hide;" id="delete-project">
+        
+    <h3>
+        Are you sure to delete this project?
+    </h3>
+       
+        <button type="button" id="delete-btn">Yes</button><button type="button" id="no-delete">No</button>
+
+    </div>
 <script>
     const popup_project = document.getElementById('pop-up-project');
     const adder = document.getElementById('adder');
@@ -46,16 +55,82 @@
     const adder_project = document.getElementById('adder_project');
     const projects_container = document.getElementById('projects-container');
     const name_project = document.getElementById('name-project');
-    
-    adder_project.addEventListener("click", () => {
+    const form = document.getElementById('form');
+    const delete_popup = document.getElementById('delete-project');
+    const delete_btn = document.getElementById('delete-btn');
+    const no_delete = document.getElementById('no-delete');
+    const user_projects = {{ projects | tojson }};
+
+    user_projects.forEach(proj => {
+        createProjectElement(proj.name, proj.has_password, proj.id);
+    });
+
+    function createProjectElement(name, hasPassword, id) {
         const project = document.createElement('div');
+        const del_project = document.createElement('div');
+        const title = document.createElement('div');
+        title.innerText=name;
+        project.appendChild(title);
+        del_project.className="delete_project";
         project.className="project";
-        projects_container.appendChild(project);
-        project.innerText=name_project.value;
-        popup_project.style.display="none";
-        if (password_project != ""){
-            project.innerText=name_project.value + "🔒";
+        
+
+        project.appendChild(del_project);
+        del_project.innerHTML+="<svg xmlns='http://www.w3.org/2000/svg' x='0px' y='0px' width='100' height='100' viewBox='0,0,256,256'><g fill='#ffffff' fill-rule='nonzero' stroke='none' stroke-width='1' stroke-linecap='butt' stroke-linejoin='miter' stroke-miterlimit='10' stroke-dasharray='' stroke-dashoffset='0' font-family='none' font-weight='none' font-size='none' text-anchor='none' style='mix-blend-mode: normal'><g transform='scale(8.53333,8.53333)''><path d='M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z'></path></g></g></svg>";
+        if (hasPassword){
+            title.innerText+= "🔒";
         }
+        projects_container.appendChild(project);
+
+        project.addEventListener("click",()=>{
+            window.location.href=`/projects/${id}`;
+        });
+
+        del_project.addEventListener("click", (e)=>{
+            e.stopPropagation();
+
+            delete_popup.style.display="flex";
+            delete_btn.addEventListener("click",async ()=>{
+                const response = await fetch(`/projects/${id}/delete`,{
+                method:"DELETE",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+               
+            });
+
+                const data = await response.json();
+
+                if(data.success){
+                    project.remove();
+                }
+                else{
+                    alert("No se pudo borrar");
+                }
+                });
+            no_delete.addEventListener("click",()=>{
+                delete_popup.style.display="none";
+            });
+            
+        });
+    }
+
+
+
+    adder_project.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const NewName = name_project.value;
+        const hasPass = pass_lock.checked;
+
+        if(NewName){
+            createProjectElement(NewName, hasPass);
+            popup_project.style.display = "none";
+            
+        }
+        form.submit();
+        name_project.value="";
+        
     });
 
     toogle_password.addEventListener("click", ()=>{

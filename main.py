@@ -201,6 +201,7 @@ class SQLite3(Storage):
     }
 
     def add_project(self, datapkg):
+        print("WORKING", datapkg)
         conn = self.conexion()
         cursor = conn.cursor()
         project_id = str(uuid.uuid4())
@@ -236,18 +237,25 @@ class Storage_Service:
 
 class Project:
     def create_project(self, name, password):
-        hashing = hashlib.sha512(password.encode())
-        passHashed = hashing.hexdigest()
-        datapkg_project ={
-                "project_name":name,
-                "password_project":passHashed
-                }
+        print("Esto funciona")
+        if password:
+
+            hashing = hashlib.sha512(password.encode())
+            passHashed = hashing.hexdigest()
+            
+        else:
+            passHashed = None
         
+        datapkg_project ={
+                    "project_name":name,
+                    "password_project":passHashed
+                    }
         sql3 = SQLite3("kitTest.db")
         sql3.start_tables()
         serviceStorage=Storage_Service(sql3)
         serviceStorage.add_project_service(datapkg_project)
-
+        print("Se han enviado los datos")
+    
 
 
 #Users
@@ -326,7 +334,7 @@ class User:
 @app.context_processor
 def inject_user_data():
     userpic = None
-
+    projects = []
     if session.get('user_id'):
             conn = SQLite3("kitTest.db").conexion()
             cursor = conn.cursor()
@@ -345,11 +353,25 @@ def inject_user_data():
             conn.close()
 
 
+    if session.get('user_id'):
+        conn= SQLite3("kitTest.db").conexion()
+
+        cursor=conn.cursor()
+        cursor.execute(
+            "SELECT id_project,name, password FROM projects WHERE id_user = ? ORDER BY id_project DESC",(session['user_id'],)
+        )
+
+        rows= cursor.fetchall()
+        projects = [{ "id":r[0] ,"name":r[1], "has_password":bool(r[2])} for r in rows]
+        cursor.close()
+        conn.close()
+
     return {
         'username':session.get('username'),
         'mail':session.get('user_mail'),
         'is_logged_in':'user_id' in session,
-        'userpic':userpic
+        'userpic':userpic,
+        'projects':projects
 
     }
 
@@ -466,14 +488,44 @@ def user_profile():
 def uploads_filename(filename):
     return send_from_directory('uploads', filename)
 
+@app.route('/projects/<project_id>')
+def projects(project_id):
+    conn = SQLite3("kitTest.db").conexion()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT name, password FROM projects WHERE id_project = ?
+        """,(
+            project_id,
+        )
+    )
+
+    project = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not project:
+        return "Proyecto no existe", 404
+    return render_template('project.html', project=project)
+
 @app.route('/my-projects', methods=["GET","POST"])
 
 def my_projects():
+    print(request.method)
+    print(request.form)
+  
     project_name = request.form.get("name-project")
     password_project = request.form.get("pass_project")
-    action = request.form.get("action")
-    if request.method == "POST" and action == "addProject":
-        create_project=Project().create_project(project_name, password_project)
+    
+    if request.method == "POST":
+        print("project_name =", project_name)
+        print("password_project =", password_project)
+        print(type(password_project))
+        create_projecto=Project()
+        create_projecto.create_project(project_name, password_project)
+    print('se envio data')
 
 
     return render_template("my-projects.html")
@@ -490,6 +542,7 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
-    
+    db = SQLite3("kitTest.db")
+    db.start_tables()
     app.run(debug=True)
 
