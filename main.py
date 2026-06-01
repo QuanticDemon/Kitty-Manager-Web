@@ -584,6 +584,31 @@ def deleter_private_project(project_id):
     conn.close()
     return {"success":True}, 200
 
+@app.route('/projects/<project_id>/access', methods=["GET", "POST"])
+def access_private(project_id):
+    conn = SQLite3("kitTest.db").conexion()
+    cursor = conn.cursor()
+    id_user = session.get('user_id')
+    get_pass = request.get_json()
+    hashing = hashlib.sha512(get_pass["password"].encode())
+    pass_priv = hashing.hexdigest()
+    cursor.execute(
+            """
+            SELECT password FROM projects WHERE id_project=? AND id_user=?
+            """,(
+                project_id,
+                id_user
+                )
+            )
+    row = cursor.fetchone()
+    if pass_priv != row[0]:
+        cursor.close()
+        conn.close()
+        return{"success": False}, 404
+    cursor.close()
+    conn.close()
+    return {"success":True},200
+
 @app.route('/logout')
 def logout():
     session.clear()

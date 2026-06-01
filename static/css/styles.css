@@ -592,3 +592,14 @@ border-radius: 18px;
   width: 80%;
   height: 50vh;
 }
+
+.lock-project{
+  display: none;
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  width: 80%;
+  height: 50vh;
+}

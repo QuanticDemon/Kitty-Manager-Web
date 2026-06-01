@@ -54,6 +54,16 @@
             <button type="button" id="def_del">Delete</button>
         </form>
     </div>
+    <div class="lock-project" id="lock-project">
+      <div class="close-lock" id="close-lock">
+        x
+      </div>
+      <form action="post">
+          <label for="pass">Enter the pass to access to private project:</label>
+          <input type="password" name="pass" id="pass">
+          <button type="button" id="access-private">Access</button>
+      </form>
+    </div>
 <script>
     const popup_project = document.getElementById('pop-up-project');
     const adder = document.getElementById('adder');
@@ -95,7 +105,46 @@
         projects_container.appendChild(project);
 
         project.addEventListener("click",()=>{
-            window.location.href=`/projects/${id}`;
+            if (hasPassword){
+               const lock_project = document.getElementById('lock-project');
+               const close_lock = document.getElementById('close-lock');
+               const pass = document.getElementById('pass');
+               const access_private = document.getElementById('access-private');
+
+               
+               lock_project.style.display="block";
+
+               access_private.addEventListener("click", async () =>{
+                 const response= await fetch(`/projects/${id}/access`,{
+                   method:"POST",
+                   headers:{
+                     "Content-Type":"application/json"
+                   },
+                     body: JSON.stringify({
+                       "password":pass.value
+                     })
+                 });
+
+                 const data_private = await response.json();
+
+                 if(data_private.success){
+                   lock_project.style.display="none";
+                    window.location.href=`/projects/${id}`;
+                 }
+                 else{
+                   alert("Contraseña incorrecta");
+                 }
+               });
+
+               close_lock.addEventListener("click", ()=> {
+                 lock_project.style.display="none";
+               });
+
+            }
+            else{
+              window.location.href=`/projects/${id}`;
+            }
+        
         });
 
         del_project.addEventListener("click", (e)=>{
