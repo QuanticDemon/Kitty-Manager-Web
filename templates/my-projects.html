@@ -45,6 +45,15 @@
         <button type="button" id="delete-btn">Yes</button><button type="button" id="no-delete">No</button>
 
     </div>
+
+    <div class="security-project" id="security-project">
+        <div class="close-security" id="close-security">x</div>
+        <form action="" method="post">
+            <label for="pass-security">Enter the pass por delete private project:</label>
+            <input type="password" name="pass-security" id="pass-security">
+            <button type="button" id="def_del">Delete</button>
+        </form>
+    </div>
 <script>
     const popup_project = document.getElementById('pop-up-project');
     const adder = document.getElementById('adder');
@@ -59,8 +68,11 @@
     const delete_popup = document.getElementById('delete-project');
     const delete_btn = document.getElementById('delete-btn');
     const no_delete = document.getElementById('no-delete');
+    const security_project = document.getElementById('security-project');
+    const close_security = document.getElementById('close-security');
+    const def_del = document.getElementById('def_del');
     const user_projects = {{ projects | tojson }};
-
+    const pass_security = document.getElementById('pass-security');
     user_projects.forEach(proj => {
         createProjectElement(proj.name, proj.has_password, proj.id);
     });
@@ -91,7 +103,54 @@
 
             delete_popup.style.display="flex";
             delete_btn.addEventListener("click",async ()=>{
-                const response = await fetch(`/projects/${id}/delete`,{
+                if(hasPassword){
+                    security_project.style.display="block";
+
+                    
+                    close_security.addEventListener("click",()=>{
+                        security_project.style.display="none";
+                    });
+
+                    def_del.addEventListener("click", async( ) =>{
+                        const response = await fetch(`/projects/${id}/private/delete`,{
+                            method:"POST",
+                            headers:{
+                                "Content-Type":"application/json"
+                            },
+                            body: JSON.stringify({
+                                "password":pass_security.value}
+                            )
+                        }); 
+                        const data_response = await response.json();
+
+                        if(data_response.success){
+                            
+                            const response = await fetch(`/projects/${id}/delete`,{
+                                method:"DELETE",
+                                headers:{
+                                    "Content-Type":"application/json"
+                                },
+                            });
+                            const data = await response.json();
+
+                            if(data.success){
+                                project.remove();
+                                delete_popup.style.display="none";
+                               security_project.style.display="none";
+                            }
+                            else{
+                                alert("No se pudo borrar");
+                            }
+                            
+
+                        }
+                        else{
+                            alert("Incorrect password");
+                        }
+                    });
+                }
+                else{
+                    const response = await fetch(`/projects/${id}/delete`,{
                 method:"DELETE",
                 headers:{
                     "Content-Type":"application/json"
@@ -103,10 +162,15 @@
 
                 if(data.success){
                     project.remove();
+                    delete_popup.style.display="none";
                 }
                 else{
                     alert("No se pudo borrar");
                 }
+                }
+
+
+                
                 });
             no_delete.addEventListener("click",()=>{
                 delete_popup.style.display="none";

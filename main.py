@@ -513,19 +513,18 @@ def projects(project_id):
 @app.route('/my-projects', methods=["GET","POST"])
 
 def my_projects():
-    print(request.method)
-    print(request.form)
+   
   
     project_name = request.form.get("name-project")
     password_project = request.form.get("pass_project")
     
     if request.method == "POST":
-        print("project_name =", project_name)
-        print("password_project =", password_project)
-        print(type(password_project))
+      
         create_projecto=Project()
         create_projecto.create_project(project_name, password_project)
-    print('se envio data')
+
+        return redirect(url_for('my_projects'))
+
 
 
     return render_template("my-projects.html")
@@ -536,10 +535,65 @@ def productivity_tools():
     return render_template("productivity.html")
 
 
+@app.route('/projects/<project_id>/delete', methods=["DELETE"])
+def deleter_projects(project_id):
+    conn = SQLite3("kitTest.db").conexion()
+    cursor = conn.cursor()
+    user_id = session.get('user_id')
+
+    cursor.execute(
+        """
+        DELETE FROM projects WHERE id_project = ? AND id_user = ?
+        """,(
+            project_id,
+            user_id
+        )
+    )
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return {"success": True}
+
+@app.route('/projects/<project_id>/private/delete', methods=["GET", "POST"])
+def deleter_private_project(project_id):
+    conn = SQLite3("kitTest.db").conexion()
+    cursor = conn.cursor()
+    
+    pass_priv_data = request.get_json()
+    pass_privHash = hashlib.sha512(pass_priv_data["password"].encode())
+    pass_priv = pass_privHash.hexdigest()
+
+
+    cursor.execute(
+        """
+        SELECT password FROM projects WHERE id_project = ?
+        """,(
+            project_id,
+        )
+    )
+    row = cursor.fetchone()
+    if pass_priv != row[0]:
+        cursor.close()
+        conn.close()
+    
+        return  {"success":False}, 404
+    
+    cursor.close()
+    conn.close()
+    return {"success":True}, 200
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+
+@app.route('/settings', methods=["GET", "POST"])
+def settings():
+    
+    return render_template("settings.html")
 
 if __name__ == "__main__":
     db = SQLite3("kitTest.db")
