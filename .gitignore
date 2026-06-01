@@ -2,3 +2,4 @@ uploads/
 projects/
 __pycache__/
 *.pyc
+*.db
