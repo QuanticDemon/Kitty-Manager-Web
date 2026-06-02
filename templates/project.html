@@ -6,25 +6,37 @@
 
     <title>{%if project[1] != None%}{{project[0]}}  🔒 {%else%}{{project[0]}}{%endif%}</title>
     <style>
+      *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body{
         background:magenta;
       }
 
       #files-container{
-        width: 90%;
-        padding:18px;
-        display:grid;
-        grid-template:auto auto auto;
-        gap:10px;
+        width: min(1200px, 95%);
+        margin: auto;
+        display: grid;
+        grid-template-columns:
+          repeat(
+            auto-fill, minmax(150px, 1fr)
+          );
+
+        gap: 15px;
+        padding: 15px;
       }
       
       .file{
         background:white;
-        width:150px;
-        height:10vh;
+        width:100%;
+        aspect-ratio: 0.8;
+        border: 3px solid black;
         display:flex;
         justify-content:center;
-        text-align:center;
+        align-items: center;
         position:relative;
          
       }
@@ -52,15 +64,15 @@
        transform:translate(-50%, -50%);
       }
       #pop-up-files{
-        display:none;
-        background:rgba(226, 223, 223, 1);
-        width:90%;
-        height:50vh;
-        position:absolute;
-        top:50%;
-        left:50%;
-        transform:translate(-50%,-50%);
-        
+        display: none;
+        background-color: rgb(119, 119, 119);
+        width: min(900px, 80%);
+        max-height: 90vh;
+        overflow: auto;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform:translate(-50%, -50%);
         
       }
 
@@ -94,9 +106,80 @@
       }
 
       #type-files .file{
-        border:2px solid black;
+        background:white;
+        width:100%;
+        aspect-ratio: 0.8;
+        
+        display:flex;
+        justify-content:center;
+        align-items: center;
+        position:relative;
       }
 
+
+      #file-settings-html{
+        display: none;
+        width: min(900px, 80%);
+        background-color: white;
+        overflow: auto;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        text-align: center;
+        box-shadow: 10px 10px 30px black;
+      }
+
+      #file-settings-html #close-settings-html{
+       background-color: red;
+       text-align: center;
+       width: 20px;
+       height: 20px;
+       border-radius: 50%;
+       margin-left: 10px;
+       margin-top: 10px;
+       color: white;
+      }
+
+      #file-settings-html form{
+        text-align: left;
+        padding: 15px;
+        margin: auto;
+      }
+
+     #file-settings-html form label, input[type="text"]{
+        
+        width: 100%;
+      }
+
+
+
+      img{
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      #customizing-html{
+        display: none;
+        background-color: white;
+      }  
+      #html-structures{
+        gap: 30px;
+    
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill, minmax(100px, 1fr)
+
+        );
+      }
+      
+      .structure{
+        border: 2px solid black;
+        width: 100%;
+        aspect-ratio: 0.8;;
+        background-color: white;
+      }
 
     </style>
 </head>
@@ -107,7 +190,13 @@
     <div id="file-content">
       <p>+</p>
     </div>
+    
    </div> 
+   {% for file in files%}
+      <div class="file">
+        {{file[1]}}
+      </div>
+    {% endfor %}
   </div>
   <div id="pop-up-files">
      <div id="close-popup-files">
@@ -127,24 +216,32 @@
      </div>
   </div>
 
-  <div id="file-settings-html" style="display:none;">
+  <div id="file-settings-html" >
+    <div id="close-settings-html">
+      x
+    </div>
     <div class="title">
       <h4>Configure su archivo html</h4>
     </div>
     <div id="form-html" >
+      
       <form method="post">
         <label for="file-name">File name</label>
         <input type="text" id="file-name" placeholder="example">
 
-   <input type="checkbox" id="custom"><label for="custom">Desea añadir configuracion adicional?</label>
-      <div style="display:none;"  id="customizing-html">
+   <input type="checkbox" id="custom" ><label for="custom">Desea añadir configuracion adicional?</label>
+      <div id="customizing-html">
+        <h4>Elija la estructura de su archivo html:</h4>
       <div id="html-structures">
-          <div id="structure">
-            <img src="" alt="Dinamic Form">
+          <div id="form-structure" class="structure">
+            <img src="../static/images/formstructure.png" alt="Dinamic Form">
+          </div>
+          <div id="classic" class="structure">
+            <img src="../static/images/formstructure.png" alt="Dinamic Form">
           </div>
         </div>
       </div>
-
+      <button type="button" id="create-file">Create</button>
       </form>
     </div>
   </div>
@@ -153,31 +250,89 @@
     const add_file = document.getElementById("add-file");
     const pop_up_files = document.getElementById("pop-up-files");
     const close_popup_files = document.getElementById("close-popup-files");
+    const file_settings_html = document.getElementById("file-settings-html");
+    const close_settings_html = document.getElementById("close-settings-html");
+    const project_id = "{{ project_id }}";
+
     
+      
+  
+    function closeWindow(window, btn) {
+      btn.addEventListener("click", () => {
+        window.style.display="none";
+      });
+    }
+    
+    closeWindow(pop_up_files,close_popup_files);
+    closeWindow(file_settings_html,close_settings_html);
+
+
+
+
     add_file.addEventListener("click", ()=>{
        pop_up_files.style.display="grid";
-      const user_file = document.createElement('div');
-      user_file.className="file";
+       
+      file_customization(project_id);
+    
+       
+
+       
+        
+
       
 
     });
 
-    close_popup_files.addEventListener("click", ()=>{
-      pop_up_files.style.display="none";
-    });
-
-    function file_customization(){
+    
+    function file_customization(id_project){
+     
        const html_file = document.getElementById('html-file');
 
-      html_file.addEventListener("click", ()=>{
+         html_file.addEventListener("click", ()=>{
+         pop_up_files.style.display="none";
         const html_settings = document.getElementById('file-settings-html');
         const custom_check = document.getElementById('custom');
         const customizing_html=document.getElementById('customizing-html');
+        const create_btn = document.getElementById('create-file');
+        const name_file =  document.getElementById('file-name');
         html_settings.style.display="block";
+        custom_check.addEventListener("change",()=>{
+            if(custom_check.checked){
+              customizing_html.style.display="block";
+              const structure = document.getElementById('structure');
+              structure 
+            }else{
+              customizing_html.style.display="none";
 
-        if(custom_check.checked){
-          customizing_html.style.display="block";
-        }
+            }
+       
+
+        });
+         create_btn.addEventListener("click", async(e) => {
+
+          e.preventDefault();
+          if (custom_check.checked==false){
+            const response = await fetch(`/projects/${id_project}/files`,{
+              method:"POST",
+              headers:{
+                "Content-Type":"application/json"
+              },
+              body: JSON.stringify({
+                "filename":name_file.value,
+                "type":"html"
+              })
+            });
+
+            const data = await response.json();
+
+            if(data.success){
+              file_settings_html.style.display="none";
+              location.reload();
+            }else{
+              alert("No se pudo crear archivo");
+            }
+          }
+        });
 
       });
     }

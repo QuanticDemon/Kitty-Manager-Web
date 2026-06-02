@@ -26,6 +26,8 @@ class Storage:
         pass
     def add_project(self, datapkg):
         pass
+    def add_file(self, datapkg):
+        pass
 class SQLite3(Storage):
     def conexion(self):
         return sqlite3.connect(self.datastorage_file)
@@ -68,6 +70,20 @@ class SQLite3(Storage):
                     )
                 '''
                 )
+
+        cursor.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS files(
+                id_file INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                type TEXT,
+                project_id TEXT,
+                FOREIGN KEY (project_id) REFERENCES projects(id_project)
+
+            )
+            '''
+        )
+        
         conn.commit()
         cursor.close()
         conn.close()
@@ -201,7 +217,7 @@ class SQLite3(Storage):
     }
 
     def add_project(self, datapkg):
-        print("WORKING", datapkg)
+       
         conn = self.conexion()
         cursor = conn.cursor()
         project_id = str(uuid.uuid4())
@@ -219,6 +235,25 @@ class SQLite3(Storage):
         conn.commit()
         cursor.close()
         conn.close()
+    def add_file(self, datapkg):
+        conn = self.conexion()
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """
+            INSERT INTO files (name, type, project_id) VALUES (?,?,?)
+            """,(
+                datapkg['name'],
+                datapkg['type'],
+                datapkg['project_id']
+
+            )
+        )
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
 class Storage_Service:
     def __init__(self, storage:Storage):
         self.storage = storage
@@ -233,8 +268,35 @@ class Storage_Service:
         return self.storage.update_profile_pic(image)
     def add_project_service(self, datapkg):
         return self.storage.add_project(datapkg)
-#projects
+    def add_file_service(self,datapkg):
+        return self.storage.add_file(datapkg)
 
+#files
+class Files:
+    def __init__(self, filename, extension, project_id):
+        self.filename = filename
+        self.extension = extension
+        self.project_id = project_id
+
+    def create_file(self):
+        data_package={
+            "name":self.filename,
+            "type":self.extension,
+            "project_id":self.project_id
+        }
+
+        sql3 = SQLite3("kitTest.db")
+        sql3.start_tables()
+        storage_service = Storage_Service(sql3)
+        storage_service.add_file_service(data_package)
+
+    
+
+
+
+
+
+#projects
 class Project:
     def create_project(self, name, password):
         print("Esto funciona")
@@ -500,15 +562,22 @@ def projects(project_id):
             project_id,
         )
     )
-
     project = cursor.fetchone()
-
+    cursor.execute(
+        """
+        SELECT * FROM files WHERE project_id=?
+        """,(
+            project_id,
+        )
+    )
+   
+    files = cursor.fetchall()
     cursor.close()
     conn.close()
 
     if not project:
         return "Proyecto no existe", 404
-    return render_template('project.html', project=project)
+    return render_template('project.html', project=project, files=files, project_id=project_id)
 
 @app.route('/my-projects', methods=["GET","POST"])
 
@@ -608,6 +677,39 @@ def access_private(project_id):
     cursor.close()
     conn.close()
     return {"success":True},200
+
+@app.route('/projects/<project_id>/files', methods=["POST"])
+def files_creation(project_id):
+    extension={
+        "html":".html",
+        "css":".css",
+        
+    }
+    data= request.get_json()
+    filename = data['filename']
+    type_file = data['type']
+    filenameFull = filename+extension[type_file]
+    save_file_transport = Files(filenameFull, extension[type_file], project_id)
+    save_file_transport.create_file()
+
+    if save_file_transport == False:
+        return {"success":False}, 404
+
+
+    path_file = f"projects/{project_id}"
+
+    os.makedirs(path_file, exist_ok=True)
+    
+    filename_path = os.path.join(path_file, filenameFull)
+
+    with open(filename_path,"w", encoding="utf-8") as f:
+        if type_file == "html":
+            f.write(f"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>{filename}</title></head><body></body></html>")
+
+
+    return {"success":True}, 200, filenameFull
+
+
 
 @app.route('/logout')
 def logout():
