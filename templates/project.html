@@ -193,7 +193,7 @@
     
    </div> 
    {% for file in files%}
-      <div class="file">
+      <div class="file" id="file">
         {{file[1]}}
       </div>
     {% endfor %}
@@ -253,7 +253,11 @@
     const file_settings_html = document.getElementById("file-settings-html");
     const close_settings_html = document.getElementById("close-settings-html");
     const project_id = "{{ project_id }}";
-
+    const file=document.getElementById("file");
+    const filename =  "{{filename}}";
+    file.addEventListener("click", ()=> {
+      fetch(`/projects/${project_id}/${filename}`);
+    });
     
       
   

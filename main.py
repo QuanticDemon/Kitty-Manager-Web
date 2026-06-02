@@ -707,7 +707,10 @@ def files_creation(project_id):
             f.write(f"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>{filename}</title></head><body></body></html>")
 
 
-    return {"success":True}, 200, filenameFull
+    return {"success":True,
+            "filename": filenameFull,
+            "project_id":project_id
+            }
 
 
 

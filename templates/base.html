@@ -26,7 +26,10 @@
       </div>
       <!--bmF2IGxpbmtzCg==THEMES END-->
       <!--bmF2IGxpbmtzCg== START-->
-      <ul class="nav-links">
+      <button type="button" id="menu-btn">
+        ≡
+      </button>
+      <ul class="nav-links" id="nav-links">
         <li><a style="text-decoration: none;" href="{{url_for('home')}}" class="{% if request.endpoint == 'home'%} active {%endif%}">Home</a></li>
         <li><a style="text-decoration: none;" href="{{url_for('my_projects')}}" class="{% if request.endpoint == 'my_projects'%} active {%endif%}">My projects</a></li>
         <li> <a style="text-decoration: none;" href="{{url_for('productivity_tools')}}" class="{% if request.endpoint == 'productivity_tools'%} active {%endif%}">KMW Productivity</a></li>
@@ -40,15 +43,123 @@
         {% if userpic %}
           <img  src="{{userpic}}" alt="user-profile" /></a>
         {% else %}
+        <a href="{{url_for('user_profile')}}">
           <img src="{{url_for('static', filename='images/defaultkittyprofile.png')}}" alt="">
+        </a>
         {% endif%}
       </div>
       <!--bmF2IGxpbmtzCg==account END-->
     </nav>
+
+    <div id="kiterminal">
+      <p>K&gt_</p>
+    </div>
+
+   <div id="kiterminal-window">
+      <div id="close-terminal">
+        x
+      </div>
+      <!--<p class="command-data-user" id="banner-user">{{username}}∆rootkit~:</p>
+      <input  type="text" name="user-command" id="command">
+      <p id="response">kit&gt:</p>-->
+    </div>
     {% block content %}
     {%endblock%}
   <script>
     const themes = document.getElementById("themes");
+    const kiterminal = document.getElementById("kiterminal");
+    const kiterminal_window = document.getElementById("kiterminal-window");
+    const close_terminal = document.getElementById("close-terminal");
+    kiterminal.addEventListener("click", ()=>{
+
+         kiterminal_window.style.display="flex";
+          
+         create_lines();
+      
+         if(kiterminal_window.style.display=="none"){
+      
+           kiterminal_window.style.display="flex";
+         }
+      
+    });
+    close_terminal.addEventListener("click",()=>{
+      kiterminal_window.innerHTML =""; 
+      kiterminal_window.style.display="none";
+    });
+         function create_lines(){
+           kiterminal_window.appendChild(close_terminal);
+           const banner_user = document.createElement('p');
+           banner_user.className = 'command-data-user';
+           banner_user.id = 'banner-user';
+           banner_user.innerText="{{username}}∆kitt~:"
+           kiterminal_window.appendChild(banner_user);
+           const command = document.createElement("input");
+           kiterminal_window.appendChild(command);
+           command.id = 'command';
+           const response = document.createElement("p");
+           response.id = 'response';
+           response.innerText="K>:";
+
+           command.addEventListener("keydown", (e)=>{
+
+             if (e.key === "Enter"){
+                kiterminal_window.appendChild(banner_user);
+                kiterminal_window.appendChild(command);
+                if (command.value == "me"){
+                  response.innerText+="{{username}}";
+                  kiterminal_window.appendChild(response);
+                  create_lines();
+          
+                  
+                }
+                else if(command.value == "where"){
+                  response.innerText+="{{request.endpoint}}";
+                  kiterminal_window.appendChild(response);
+                  create_lines();
+                }
+                else if(command.value == "icon"){
+                  response.innerText+="{{userpic}}";
+                  kiterminal_window.appendChild(response);
+                  create_lines();
+                }
+                if (command.value == "out"){
+                  kiterminal_window.innerHTML ="";
+                  kiterminal_window.style.display="none";       
+                  
+        
+                
+                }
+               
+             }
+            
+             
+           });
+           
+         }
+      
+         
+         
+
+
+        
+      
+    //if (window.matchMedia("(max-width:768px)").matches){
+      //const nav_links = document.getElementById('nav-links');
+      //nav_links.style.display="none";
+    //}
+
+    
+
+    const menu_btn = document.getElementById('menu-btn');
+    menu_btn.addEventListener("click",()=>{
+      
+      const nav_links = document.getElementById('nav-links');
+      nav_links.classList.toggle("active");
+  
+      
+    });
+
+    
 
    
 
