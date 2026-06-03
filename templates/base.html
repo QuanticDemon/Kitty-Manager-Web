@@ -54,11 +54,14 @@
     <div id="kiterminal">
       <p>K&gt_</p>
     </div>
-
+  
    <div id="kiterminal-window">
+     <div class="buttons">
+    
       <div id="close-terminal">
         x
       </div>
+   </div>
       <!--<p class="command-data-user" id="banner-user">{{username}}∆rootkit~:</p>
       <input  type="text" name="user-command" id="command">
       <p id="response">kit&gt:</p>-->
@@ -70,6 +73,12 @@
     const kiterminal = document.getElementById("kiterminal");
     const kiterminal_window = document.getElementById("kiterminal-window");
     const close_terminal = document.getElementById("close-terminal");
+    const up_terminal = document.getElementById("up-terminal");
+    let places = ["home","my-projects", "productivity-tools", "settings", "my-profile"];
+    let type_creations =  {
+      "projects":"-p",
+      "files":"-f"
+    };
     kiterminal.addEventListener("click", ()=>{
 
          kiterminal_window.style.display="flex";
@@ -87,7 +96,7 @@
       kiterminal_window.style.display="none";
     });
          function create_lines(){
-           kiterminal_window.appendChild(close_terminal);
+          kiterminal_window.appendChild(close_terminal);
            const banner_user = document.createElement('p');
            banner_user.className = 'command-data-user';
            banner_user.id = 'banner-user';
@@ -100,7 +109,7 @@
            response.id = 'response';
            response.innerText="K>:";
 
-           command.addEventListener("keydown", (e)=>{
+           command.addEventListener("keydown", async (e)=>{
 
              if (e.key === "Enter"){
                 kiterminal_window.appendChild(banner_user);
@@ -121,6 +130,99 @@
                   response.innerText+="{{userpic}}";
                   kiterminal_window.appendChild(response);
                   create_lines();
+                }
+                else if(command.value == "go"){
+                  response.innerText+="Where? ";
+                    for (const place of places) {
+                      response.innerText+= place + " ";
+                     
+                      
+                    }
+                     kiterminal_window.appendChild(response);
+                      create_lines();
+                    
+                }
+                else if(command.value.startsWith("go")){
+                    const args = command.value.split(" ");
+                    const target = args[1];
+                    
+                   
+                    
+                    if(places.includes(target)){
+                      response.innerText="cargando...";
+
+                     kiterminal_window.appendChild(response);
+                      window.location.href = `/${target}`;
+
+                    }
+                    else{
+                      alert(target+" no existe");
+                      create_lines();
+                    }
+                    
+
+                   
+                    
+
+                    
+                  }
+                else if(command.value=="create"){
+                  for (const [type, shortcut] of Object.entries(type_creations)) {
+                    response.innerText +=  "";
+                    response.innerText += type  +" = "+ shortcut + "|";
+                   
+                    
+                  }
+                  kiterminal_window.appendChild(response);
+                    create_lines();
+                  
+                }
+                else if(command.value.startsWith("create")){
+                  const args = command.value.split(" ");
+                  const target = args[1];
+
+                  if(target){
+                    if (target == "projects" || target == "-p"){
+                      const name_project_input = document.createElement('input');
+                      const name_project_label = document.createElement('label');
+                      const pass_project_input = document.createElement('input');
+                      const pass_project_label = document.createElement('label');
+                      name_project_input.type = "text";
+                      pass_project_input.type = "text";
+                      name_project_label.innerText="Enter a name for project: ";
+                      pass_project_label.innerText="Enter a pass for project (can press enter to make public project): ";
+                      kiterminal_window.appendChild(name_project_label);
+                      kiterminal_window.appendChild(name_project_input);
+                    
+                      name_project_input.addEventListener("keydown", (e) =>{
+                        if (e.key === "Enter"){
+                          if (name_project_input.value != ""){
+                          kiterminal_window.appendChild(pass_project_label);
+                          kiterminal_window.appendChild(pass_project_input);
+                      }
+                        }
+                         
+                      });
+
+                     
+                      
+                     
+                    }
+                    else if(target == "files" || target == "-f"){
+                      alert("files");
+                    }
+                  }
+                  
+                   //kiterminal_window.appendChild(response);
+                    //create_lines();
+                }
+                
+                else{
+                  response.innerText+="Command not found";
+                  response.style.color="red";
+                  kiterminal_window.appendChild(response);
+                    create_lines();
+
                 }
                 if (command.value == "out"){
                   kiterminal_window.innerHTML ="";

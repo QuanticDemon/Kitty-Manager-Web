@@ -665,7 +665,8 @@ border-radius: 18px;
 
  #kiterminal-window{
 
-   width: min(1000px, 100%);
+   width: 100%;
+   max-width: 1600px;
    bottom: 0;
    height: 60vh;
    background-color: black;
@@ -698,8 +699,21 @@ border-radius: 18px;
    font-size: 18px;
 
  }
+
+
+ #kiterminal-window label{
+
+   background-color: black;
+   color: rgb(128, 0, 0);
+   border: none;
+   outline: none;
+   width: 100%;
+   height: 3vh;
+   font-size: 18px;
+
+ }
  #response{
-   color: purple;
+   color: rgb(190, 134, 255);
    width: 100%;
    font-size: 20px;
 
@@ -714,7 +728,7 @@ border-radius: 18px;
 
 
  #close-terminal{
-   width: 40%;
+   width: 10%;
    height: 50px;
    top: 0;
    right: 0;
@@ -724,6 +738,7 @@ border-radius: 18px;
    text-align: center;
    margin: 0;
    padding: 0;
+   cursor: pointer;
  }
 
  @media(max-width: 768px){
@@ -755,6 +770,7 @@ border-radius: 18px;
      margin: 0;
      padding: 0;
      position: absolute;
+     cursor: pointer;
    }
 
  }

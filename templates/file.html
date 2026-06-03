@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ filename }}</title>
+    <style>
+        *{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body{
+            background-color: rgb(243, 220, 245);
+            
+        }
+        h1{
+            text-align: center;
+        }
+
+        .content-data{
+            display: flex;
+            justify-content: center;
+          
+        }
+        .content-data textarea{
+            width: 90%;
+            justify-content: left;
+            background-color: rgb(40, 40, 40);
+            color: green;
+            aspect-ratio: 0.5;
+            max-height: 100vh;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <h1>{{filename}}</h1>
+    <div class="content-data">
+        <textarea name="" id="">
+        {{content}}
+    </textarea>
+    </div>
+    
+</body>
+</html>

@@ -3,6 +3,7 @@ import uuid
 import hashlib
 import sqlite3
 import os
+
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "ae6dasasdsddd6514fa8d4a5ccc16a6574601db6dca/@*axmsao129n29330231j2091n3s9e313fs92s901292192012js9j102js019"
@@ -678,7 +679,7 @@ def access_private(project_id):
     conn.close()
     return {"success":True},200
 
-@app.route('/projects/<project_id>/files', methods=["POST"])
+@app.route('/projects/<project_id>/files/creation', methods=["POST"])
 def files_creation(project_id):
     extension={
         "html":".html",
@@ -704,13 +705,44 @@ def files_creation(project_id):
 
     with open(filename_path,"w", encoding="utf-8") as f:
         if type_file == "html":
-            f.write(f"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>{filename}</title></head><body></body></html>")
+            f.write(
+            f"<!DOCTYPE html>\n"
+            f" <html lang=\"en\">\n"
+            f"<head>\n"
+            f"<meta charset=\"UTF-8\">\n"
+            f"<meta name=\"viewport\" \n"
+            f"content=\"width=device-width, initial-scale=1.0\">\n" 
+            f"<title>{filename}</title>\n"
+            f"</head>\n"
+            f"<body>\n"
+            f"</body>\n"
+            f"</html>\n")
+
+
+
 
 
     return {"success":True,
             "filename": filenameFull,
             "project_id":project_id
             }
+
+@app.route('/projects/<project_id>/<filename>/open', methods=["GET",'POST'])
+def open_file(project_id, filename):
+
+    filepath = os.path.join(
+        "projects", project_id, filename
+    )
+    with open (filepath, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    return render_template( 
+        "file.html",
+        project_id=project_id,
+        filename= filename,
+        content=content
+    )
+
 
 
 

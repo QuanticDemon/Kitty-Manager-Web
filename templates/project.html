@@ -193,8 +193,11 @@
     
    </div> 
    {% for file in files%}
+
       <div class="file" id="file">
+        <a href="/projects/{{project_id}}/{{file[1]}}/open">
         {{file[1]}}
+        </a>
       </div>
     {% endfor %}
   </div>
@@ -225,7 +228,7 @@
     </div>
     <div id="form-html" >
       
-      <form method="post">
+      <form method="post" action="/projects/{{project_id}}/files/creation">
         <label for="file-name">File name</label>
         <input type="text" id="file-name" placeholder="example">
 
@@ -255,9 +258,6 @@
     const project_id = "{{ project_id }}";
     const file=document.getElementById("file");
     const filename =  "{{filename}}";
-    file.addEventListener("click", ()=> {
-      fetch(`/projects/${project_id}/${filename}`);
-    });
     
       
   
@@ -316,7 +316,7 @@
 
           e.preventDefault();
           if (custom_check.checked==false){
-            const response = await fetch(`/projects/${id_project}/files`,{
+            const response = await fetch(`/projects/${id_project}/files/creation`,{
               method:"POST",
               headers:{
                 "Content-Type":"application/json"
