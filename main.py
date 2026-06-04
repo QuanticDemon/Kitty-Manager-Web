@@ -222,6 +222,10 @@ class SQLite3(Storage):
         conn = self.conexion()
         cursor = conn.cursor()
         project_id = str(uuid.uuid4())
+        os.makedirs(
+                f"projects/{project_id}",
+                exist_ok=True
+                )
         cursor.execute(
             """
             INSERT INTO projects(id_project, name, password,id_user) VALUES (?,?,?,?)
@@ -583,19 +587,23 @@ def projects(project_id):
 @app.route('/my-projects', methods=["GET","POST"])
 
 def my_projects():
-   
-  
-    project_name = request.form.get("name-project")
-    password_project = request.form.get("pass_project")
-    
     if request.method == "POST":
-      
-        create_projecto=Project()
-        create_projecto.create_project(project_name, password_project)
+        if request.is_json:
+            data = request.get_json()
+            name = data['name']
+            password = data['pass']
+            create_project=Project()
+            create_project.create_project(name, password)
+            return jsonify({"success":True})
 
-        return redirect(url_for('my_projects'))
+        else:
+            project_name = request.form.get("name-project")
+            password_project = request.form.get("pass_project")
+            create_projecto=Project()
+            create_projecto.create_project(project_name, password_project)
 
-
+            return redirect(url_for('my_projects'))
+        
 
     return render_template("my-projects.html")
 

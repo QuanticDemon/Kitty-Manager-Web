@@ -194,12 +194,53 @@
                       kiterminal_window.appendChild(name_project_label);
                       kiterminal_window.appendChild(name_project_input);
                     
-                      name_project_input.addEventListener("keydown", (e) =>{
+                      name_project_input.addEventListener("keydown", async (e) =>{
                         if (e.key === "Enter"){
                           if (name_project_input.value != ""){
                           kiterminal_window.appendChild(pass_project_label);
                           kiterminal_window.appendChild(pass_project_input);
+                            pass_project_input.addEventListener("keydown", async (e)=>{
+                              if (e.key === "Enter"){
+                                const result = await fetch(`/my-projects`,{
+                                  method:"POST",
+                                  headers:{
+                                    "Content-Type":"application/json"
+
+                                  },
+                                  body: JSON.stringify({
+                                    "name":name_project_input.value,
+                                    "pass":pass_project_input.value
+                                  })
+
+                                });
+
+                                const data = await result.json();
+
+                                if(data.success){
+                                    response.innerText+="Projecto "+name_project_input.value + " agregado correctamente";
+                                    kiterminal_window.appendChild(response);
+                                    create_lines();
+                                    
+                                }else{
+                                  response.innerText+="No se pudo agregar proyecto";
+                                  kiterminal_window.appendChild(response);
+                                  create_lines();
+
+                                }
+
+                              }
+                              else if((e.ctrlKey  || e.metaKey) && e.key.toLowerCase()=="c"){
+                                name_project_input.setAttribute("disabled", true);
+                                pass_project_input.setAttribute("disabled", true);
+                                create_lines();
+
+                              }
+                            });
+                    
                       }
+                        }else if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() == "c"){
+                          name_project_input.setAttribute("disabled", true);
+                          create_lines();
                         }
                          
                       });
