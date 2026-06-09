@@ -397,7 +397,8 @@ cursor: pointer;
   position:absolute;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
+  max-height: 400vh;
+  overflow-y: auto;
   gap: 10px;
   top: 50%;
   padding: 20px;
@@ -669,6 +670,8 @@ border-radius: 18px;
    max-width: 1600px;
    bottom: 0;
    height: 60vh;
+   max-height: 400px;
+   overflow-y: auto;
    background-color: black;
    display: none;
    padding: 10px;

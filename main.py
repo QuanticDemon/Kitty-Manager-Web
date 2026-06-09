@@ -1,4 +1,5 @@
 from flask import * 
+from flask_sqlalchemy import SQLAlchemy
 import uuid
 import hashlib
 import sqlite3
@@ -7,6 +8,11 @@ import os
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "ae6dasasdsddd6514fa8d4a5ccc16a6574601db6dca/@*axmsao129n29330231j2091n3s9e313fs92s901292192012js9j102js019"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///kitTest.db"
+
+dbAlchemy = SQLAlchemy(app)
+
 #DB 
 
 class Storage:
@@ -327,29 +333,42 @@ class Project:
 
 #Users
 
-class User:
-    def create_account(self, name, mail, password):
+class User(dbAlchemy.Model):
+    id = dbAlchemy.Column(
+        dbAlchemy.String(36),
+        primary_key = True,
+        default = lambda:str(uuid.uuid4())
+    )
 
-        name = name.strip()
-        mail = mail.strip()
-        password=password.strip()
+    username = dbAlchemy.Column(
+        dbAlchemy.String(25),
+        nullable = False
+    )
 
+    mail = dbAlchemy.Column(
+        dbAlchemy.String(120),
+        nullable = False,
+        unique = True
+    )
 
-        hashPass = hashlib.sha512(password.encode())
-        password = hashPass.hexdigest()
+    password = dbAlchemy.Column(
+        dbAlchemy.String(100),
+        nullable = False
+    )
+    @classmethod
+    def create_user(cls, name, mail, password):
+        hashing = hashlib.sha512(password.encode())
+        pass_priv = hashing.hexdigest()
+        users = cls(
+            username=name,
+            mail = mail,
+            password = pass_priv
+        )
+        dbAlchemy.session.add(users)
+        dbAlchemy.session.commit()
+        
+        
 
-        user_package={
-                "id": str(uuid.uuid4()),
-                "name":name,
-                "mail":mail,
-                "password": password
-                }
-         
-        sql3 = SQLite3("kitTest.db")
-        sql3.start_tables()
-
-        serviceStorage = Storage_Service(sql3)
-        serviceStorage.save_data_service(user_package)
 
     def sing_in(self, loginUser, password):
         loginUser = loginUser.strip()
@@ -465,8 +484,7 @@ def register():
     action = request.form.get("action")
     if request.method == "POST":
         if action == "Confirm":
-            createUser = User().create_account(username, mail, password)
-            return redirect(url_for("home", username=username))
+            User.create_user(username, mail, password)
     
     return render_template("create-account.html")
 
@@ -668,24 +686,48 @@ def access_private(project_id):
     cursor = conn.cursor()
     id_user = session.get('user_id')
     get_pass = request.get_json()
-    hashing = hashlib.sha512(get_pass["password"].encode())
-    pass_priv = hashing.hexdigest()
-    cursor.execute(
-            """
-            SELECT password FROM projects WHERE id_project=? AND id_user=?
-            """,(
-                project_id,
-                id_user
+
+    if get_pass["source"] == "terminal":
+            hashing = hashlib.sha512(get_pass["password_project"].encode())
+            pass_priv = hashing.hexdigest()
+            cursor.execute(
+                    """
+                    SELECT password FROM projects WHERE id_project=? AND id_user=?
+                    """,(
+                        project_id,
+                        id_user
+                        )
+                    )
+            row = cursor.fetchone()
+            if pass_priv != row[0]:
+                cursor.close()
+                conn.close()
+                return{"success": False}, 404
+            cursor.close()
+            conn.close()
+            return {"success":True},200
+    else:
+
+
+
+        hashing = hashlib.sha512(get_pass["password"].encode())
+        pass_priv = hashing.hexdigest()
+        cursor.execute(
+                """
+                SELECT password FROM projects WHERE id_project=? AND id_user=?
+                """,(
+                    project_id,
+                    id_user
+                    )
                 )
-            )
-    row = cursor.fetchone()
-    if pass_priv != row[0]:
+        row = cursor.fetchone()
+        if pass_priv != row[0]:
+            cursor.close()
+            conn.close()
+            return{"success": False}, 404
         cursor.close()
         conn.close()
-        return{"success": False}, 404
-    cursor.close()
-    conn.close()
-    return {"success":True},200
+        return {"success":True},200
 
 @app.route('/projects/<project_id>/files/creation', methods=["POST"])
 def files_creation(project_id):
@@ -695,45 +737,87 @@ def files_creation(project_id):
         
     }
     data= request.get_json()
-    filename = data['filename']
-    type_file = data['type']
-    filenameFull = filename+extension[type_file]
-    save_file_transport = Files(filenameFull, extension[type_file], project_id)
-    save_file_transport.create_file()
 
-    if save_file_transport == False:
-        return {"success":False}, 404
+    if data["source"] == "terminal":
+        filename = data['filename']
+        type_file = data['type_filename']
+        filenameFull = filename+extension[type_file]
+        save_file_transport = Files(filenameFull, extension[type_file], project_id)
+        save_file_transport.create_file()
 
-
-    path_file = f"projects/{project_id}"
-
-    os.makedirs(path_file, exist_ok=True)
-    
-    filename_path = os.path.join(path_file, filenameFull)
-
-    with open(filename_path,"w", encoding="utf-8") as f:
-        if type_file == "html":
-            f.write(
-            f"<!DOCTYPE html>\n"
-            f" <html lang=\"en\">\n"
-            f"<head>\n"
-            f"<meta charset=\"UTF-8\">\n"
-            f"<meta name=\"viewport\" \n"
-            f"content=\"width=device-width, initial-scale=1.0\">\n" 
-            f"<title>{filename}</title>\n"
-            f"</head>\n"
-            f"<body>\n"
-            f"</body>\n"
-            f"</html>\n")
+        if save_file_transport == False:
+            return {"success":False}, 404
 
 
+        path_file = f"projects/{project_id}"
+
+        os.makedirs(path_file, exist_ok=True)
+        
+        filename_path = os.path.join(path_file, filenameFull)
+
+        with open(filename_path,"w", encoding="utf-8") as f:
+            if type_file == "html":
+                f.write(
+                f"<!DOCTYPE html>\n"
+                f" <html lang=\"en\">\n"
+                f"<head>\n"
+                f"<meta charset=\"UTF-8\">\n"
+                f"<meta name=\"viewport\" \n"
+                f"content=\"width=device-width, initial-scale=1.0\">\n" 
+                f"<title>{filename}</title>\n"
+                f"</head>\n"
+                f"<body>\n"
+                f"</body>\n"
+                f"</html>\n")
 
 
 
-    return {"success":True,
-            "filename": filenameFull,
-            "project_id":project_id
-            }
+
+
+        return {"success":True,
+                "filename": filenameFull,
+                "project_id":project_id
+                }
+    else:
+        filename = data['filename']
+        type_file = data['type']
+        filenameFull = filename+extension[type_file]
+        save_file_transport = Files(filenameFull, extension[type_file], project_id)
+        save_file_transport.create_file()
+
+        if save_file_transport == False:
+            return {"success":False}, 404
+
+
+        path_file = f"projects/{project_id}"
+
+        os.makedirs(path_file, exist_ok=True)
+        
+        filename_path = os.path.join(path_file, filenameFull)
+
+        with open(filename_path,"w", encoding="utf-8") as f:
+            if type_file == "html":
+                f.write(
+                f"<!DOCTYPE html>\n"
+                f" <html lang=\"en\">\n"
+                f"<head>\n"
+                f"<meta charset=\"UTF-8\">\n"
+                f"<meta name=\"viewport\" \n"
+                f"content=\"width=device-width, initial-scale=1.0\">\n" 
+                f"<title>{filename}</title>\n"
+                f"</head>\n"
+                f"<body>\n"
+                f"</body>\n"
+                f"</html>\n")
+
+
+
+
+
+        return {"success":True,
+                "filename": filenameFull,
+                "project_id":project_id
+                }
 
 @app.route('/projects/<project_id>/<filename>/open', methods=["GET",'POST'])
 def open_file(project_id, filename):
@@ -766,7 +850,7 @@ def settings():
     return render_template("settings.html")
 
 if __name__ == "__main__":
-    db = SQLite3("kitTest.db")
-    db.start_tables()
+    with app.app_context():
+        dbAlchemy.create_all()
     app.run(debug=True)
 

@@ -61,6 +61,7 @@
       <div id="close-terminal">
         x
       </div>
+      
    </div>
       <!--<p class="command-data-user" id="banner-user">{{username}}∆rootkit~:</p>
       <input  type="text" name="user-command" id="command">
@@ -74,6 +75,7 @@
     const kiterminal_window = document.getElementById("kiterminal-window");
     const close_terminal = document.getElementById("close-terminal");
     const up_terminal = document.getElementById("up-terminal");
+    const projects = {{projects | tojson}};
     let places = ["home","my-projects", "productivity-tools", "settings", "my-profile"];
     let type_creations =  {
       "projects":"-p",
@@ -250,7 +252,130 @@
                      
                     }
                     else if(target == "files" || target == "-f"){
-                      alert("files");
+                        response.innerText+= "Where projects you want to work: ";
+                        
+                        let i =1;
+                        for (const project of projects) {
+                          
+                          response.innerText += "\n" + i + "- "+project.name + "\n";
+                          kiterminal_window.appendChild(response);
+                          i++; 
+                        }
+
+                       
+                        const project_name_label = document.createElement('label');
+                        const project_name = document.createElement('input');
+                        project_name.type="text";
+                        project_name_label.innerText = "Enter the project name: ";
+                        const project_pass_label = document.createElement('label');
+                        const project_pass = document.createElement('input');
+                        project_pass.type="text";
+                        project_pass_label.innerText = "Enter the project pass: ";
+                        kiterminal_window.appendChild(project_name_label);
+                        kiterminal_window.appendChild(project_name);
+                        project_name.addEventListener("keydown", async(e) => {
+                        const project = projects.find(prj=>prj.name === project_name.value);
+                          if (e.key ==="Enter"){
+                            if (project && project.has_password){
+                              kiterminal_window.appendChild(project_pass_label);
+                              kiterminal_window.appendChild(project_pass);
+
+                              project_pass.addEventListener("keydown", async (e)=>{
+                                if(e.key === "Enter"){
+                                  const result = await fetch(`/projects/${project.id}/access`,{
+                                    method:"POST",
+                                    headers:{
+                                      "Content-Type":"application/json"
+                                    },
+                                    body: JSON.stringify({
+                                      "source":"terminal",
+                                      "password_project":project_pass.value
+                                    })
+
+                                     
+                                  });
+                                  const data = await result.json();
+                                  if(data.success){
+                                    banner_user.innerText+="/"+project.name+":";
+                                    kiterminal_window.appendChild(banner_user);
+                                    const label_filename = document.createElement('label');
+                                    const input_filename = document.createElement('input');
+                                    input_filename.type ="text";
+                                    label_filename.innerText="Enter the filename to create";
+
+                                    kiterminal_window.appendChild(label_filename);
+                                    kiterminal_window.appendChild(input_filename);
+                                    input_filename.addEventListener("keydown", async(e)=>{
+                                       if(e.key === "Enter" && input_filename.value){
+                                        let type_files = ["html", "css", "python"];
+                                        response.innerText ="Enter the type of file to create:";
+                                        for (const type of type_files) {
+                                          
+                                          response.innerText+="\n" + type + "\n";
+                                          kiterminal_window.appendChild(response);
+                                         
+                                          
+                                          
+                                        }
+                                          const label_type = document.createElement('label');
+                                          const input_type = document.createElement('input');
+                                          input_type.type = "text";
+                                          label_type.innerText="Enter type:";
+                                          kiterminal_window.appendChild(label_type);
+                                          kiterminal_window.appendChild(input_type);
+                                          input_type.addEventListener("keydown", async(e)=>{
+                                            if(e.key ==="Enter"){
+                                               const result = await fetch(`/projects/${project.id}/files/creation`,{
+                                                method:"POST",
+                                                headers:{
+                                                  "Content-Type":"application/json"
+                                                },
+                                                body: JSON.stringify({
+                                                  "source":"terminal",
+                                                  "filename":input_filename.value,
+                                                  "type_filename":input_type.value
+                                                })
+
+                                               });
+                                               const data = await result.json();
+                                               if(data.success){
+                                                response.innerText="Se agrego el archivo "+ input_filename.value+"."+input_type.value+" correctamente";
+                                                kiterminal_window.appendChild(response);
+                                                create_lines();
+                                               }
+                                               else{
+                                                alert("No se pudo crear");
+                                               }
+                                            }
+                                          });
+                                      }else if(e.key === "Enter" && input_filename.value==""){
+                                         kiterminal_window.appendChild(label_filename);
+                                         kiterminal_window.appendChild(input_filename);
+                                      }
+                                    });
+                                     
+                                  }
+                                  else{
+                                    response="Incorrect password";
+                                    response.style.color = "red";
+                                    kiterminal_window.appendChild(response);
+                                  }
+                                }
+                              });
+
+                            }
+                            else if(project){
+                              alert("existe");
+                            }
+                            else{
+                              alert("No existe");
+                            }
+                          }
+                        });
+
+                        
+                        
+
                     }
                   }
                   
