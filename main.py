@@ -1,10 +1,12 @@
 from flask import * 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 import uuid
 import hashlib
 import sqlite3
 import os
 
+from sqlalchemy import or_
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "ae6dasasdsddd6514fa8d4a5ccc16a6574601db6dca/@*axmsao129n29330231j2091n3s9e313fs92s901292192012js9j102js019"
@@ -369,24 +371,24 @@ class User(dbAlchemy.Model):
         
         
 
-
-    def sing_in(self, loginUser, password):
+    @classmethod
+    def sing_in(cls, loginUser, password):
         loginUser = loginUser.strip()
         password = password.strip()
 
         hashPass = hashlib.sha512(password.encode())
         hashedPass = hashPass.hexdigest()
 
-        userData_package ={
-            "userToken":loginUser,
-            "password":hashedPass
-        }
-       
+        user = cls.query.filter(
+            or_(
+                cls.username == loginUser,
+                cls.mail == loginUser
+            ),
+            cls.password == hashedPass
+        ).first()
 
-        sql3 = SQLite3("kitTest.db")
-        sql3.start_tables()
-        serviceStorage = Storage_Service(sql3)
-        return serviceStorage.consult_data_service(userData_package)
+        if user:
+            return bool(user), user
     def update(self, changes):
         
         user_package_tochange ={
@@ -485,6 +487,7 @@ def register():
     if request.method == "POST":
         if action == "Confirm":
             User.create_user(username, mail, password)
+            return redirect(url_for('home', username = username))
     
     return render_template("create-account.html")
 
@@ -497,14 +500,14 @@ def login():
 
     if request.method == "POST" and action == "login":
         
-        verification = User().sing_in(userToken, password)
+        verification, userData = User.sing_in(userToken, password)
 
         if verification:
             
-            session['user_id'] = verification['id']
-            session['username'] = verification['username']
-            session['user_mail'] = verification['mail']
-            session['password'] = verification['password']
+            session['user_id'] = userData.id
+            session['username'] = userData.username
+            session['user_mail'] = userData.mail
+            session['password'] = userData.password
            
 
     
@@ -533,8 +536,8 @@ def user_profile():
         if file and file.filename:
             valid_extension = ['png', 'jpg', 'jpeg', 'webp']
             extension = file.filename.rsplit('.', 1)[1].lower()
-            print(request.files)
-            print(request.files.keys())
+
+         
             if extension in valid_extension:
                 filename = f"{str(uuid.uuid4())}.{extension}"
                 print(os.getcwd())
