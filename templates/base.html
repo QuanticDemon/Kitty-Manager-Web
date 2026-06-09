@@ -21,7 +21,7 @@
       <div class="theme-changer">
         <select name="themes" id="themes">
           <option value="default" >Default KMW Theme</option>
-          <option value="user-theme">{{username}} Theme</option>
+          <option value="user-theme">{{user.username}} Theme</option>
         </select>
       </div>
       <!--bmF2IGxpbmtzCg==THEMES END-->
@@ -40,8 +40,8 @@
       <!--bmF2IGxpbmtzCg==account START-->
       <div class="account">
         <a href="{{url_for('user_profile')}}">
-        {% if userpic %}
-          <img  src="{{userpic}}" alt="user-profile" /></a>
+        {% if picture %}
+          <img  src="{{picture}}" alt="user-profile" /></a>
         {% else %}
         <a href="{{url_for('user_profile')}}">
           <img src="{{url_for('static', filename='images/defaultkittyprofile.png')}}" alt="">
@@ -50,6 +50,7 @@
       </div>
       <!--bmF2IGxpbmtzCg==account END-->
     </nav>
+
 
     <div id="kiterminal">
       <p>K&gt_</p>
@@ -66,6 +67,9 @@
       <!--<p class="command-data-user" id="banner-user">{{username}}∆rootkit~:</p>
       <input  type="text" name="user-command" id="command">
       <p id="response">kit&gt:</p>-->
+    </div>
+    <div>
+      Welcome {{user.username}}
     </div>
     {% block content %}
     {%endblock%}
@@ -102,7 +106,7 @@
            const banner_user = document.createElement('p');
            banner_user.className = 'command-data-user';
            banner_user.id = 'banner-user';
-           banner_user.innerText="{{username}}∆kitt~:"
+           banner_user.innerText="{{user.username}}∆kitt~:"
            kiterminal_window.appendChild(banner_user);
            const command = document.createElement("input");
            kiterminal_window.appendChild(command);
@@ -117,7 +121,7 @@
                 kiterminal_window.appendChild(banner_user);
                 kiterminal_window.appendChild(command);
                 if (command.value == "me"){
-                  response.innerText+="{{username}}";
+                  response.innerText+="{{user.username}}";
                   kiterminal_window.appendChild(response);
                   create_lines();
           
@@ -129,7 +133,7 @@
                   create_lines();
                 }
                 else if(command.value == "icon"){
-                  response.innerText+="{{userpic}}";
+                  response.innerText+="{{picture}}";
                   kiterminal_window.appendChild(response);
                   create_lines();
                 }

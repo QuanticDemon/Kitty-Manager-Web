@@ -331,6 +331,35 @@ class Project:
         serviceStorage.add_project_service(datapkg_project)
         print("Se han enviado los datos")
     
+#photos
+class Pictures(dbAlchemy.Model):
+    id = dbAlchemy.Column(
+         dbAlchemy.String(36),
+         primary_key=True,
+         default= lambda: str(uuid.uuid4())
+    )
+
+    name = dbAlchemy.Column(
+            dbAlchemy.Text,
+            nullable=False,
+    )
+
+    id_user = dbAlchemy.Column(
+           dbAlchemy.String(36),
+           dbAlchemy.ForeignKey('user.id'),
+           nullable=False
+    )
+    @classmethod
+    def upload_image(cls, image):
+        image = cls(
+            name = image,
+            id_user = session.get("user_id")
+        )
+        dbAlchemy.session.add(image)
+        dbAlchemy.session.commit()
+        if image:
+            return True
+
 
 
 #Users
@@ -389,79 +418,48 @@ class User(dbAlchemy.Model):
 
         if user:
             return bool(user), user
-    def update(self, changes):
+    @classmethod
+    def update(cls, changes):
         
-        user_package_tochange ={
-            "username":None,
-            "user_mail":None,
-            "password":None
+        user = cls.query.filter_by(id = session.get("user_id")).first()
+        if not user:
+            return False
 
-        }
-        if changes.get('password'):
+        if changes.get("username") != None:
+            user.username = changes.get("username")
+            dbAlchemy.session.commit()
+        if changes.get("user_mail") != None:
+            user.mail = changes.get("user_mail")
+            dbAlchemy.session.commit()
+        if changes.get("password") != None:
+            user.password = changes.get("password")
+            dbAlchemy.session.commit()
 
-            passwordHashing = hashlib.sha512(changes['password'].encode())
-            user_package_tochange["password"]= passwordHashing.hexdigest()
-        if changes.get('username'):
-            user_package_tochange['username'] = changes['username']
-        if changes.get('user_mail'):
-            user_package_tochange['user_mail'] = changes['user_mail']
-        
+        return True
 
-        sqlite3 = SQLite3("kitTest.db")
-        sqlite3.start_tables()
-        serviceStorage = Storage_Service(sqlite3)
-        serviceStorage.update_data_service(user_package_tochange)
-    @staticmethod
-    def messenger_images(image):
-        sqlite3 = SQLite3("kitTest.db")
-        sqlite3.start_tables()
-        storageService = Storage_Service(sqlite3)
-        return storageService.update_profile_pic_service(image)
 
 #context_procesor
 @app.context_processor
 def inject_user_data():
-    userpic = None
-    projects = []
-    if session.get('user_id'):
-            conn = SQLite3("kitTest.db").conexion()
-            cursor = conn.cursor()
+    session_id = session.get("user_id")
+    projects =[]
+    
 
-            cursor.execute(
-                "SELECT image_profile FROM profile_pic WHERE id_user = ? ORDER BY id_image DESC LIMIT 1",
-                (session['user_id'],)
-            )
+    if 'user_id' not in session:
+        return {
+                "user":None,
+                "picture":None,
+    
+        }
 
-            row = cursor.fetchone()
-
-            if row:
-                userpic = url_for('uploads_filename', filename=row[0])
-
-            cursor.close()
-            conn.close()
-
-
-    if session.get('user_id'):
-        conn= SQLite3("kitTest.db").conexion()
-
-        cursor=conn.cursor()
-        cursor.execute(
-            "SELECT id_project,name, password FROM projects WHERE id_user = ? ORDER BY id_project DESC",(session['user_id'],)
-        )
-
-        rows= cursor.fetchall()
-        projects = [{ "id":r[0] ,"name":r[1], "has_password":bool(r[2])} for r in rows]
-        cursor.close()
-        conn.close()
-
+    user = dbAlchemy.session.get(User, session_id)
+    pictureRow= (Pictures.query.filter_by(id_user = session_id).order_by(Pictures.id.desc()).first())
+    picture = url_for('uploads_filename', filename=pictureRow.name)
     return {
-        'username':session.get('username'),
-        'mail':session.get('user_mail'),
-        'is_logged_in':'user_id' in session,
-        'userpic':userpic,
-        'projects':projects
-
-    }
+            "user":user,
+            "picture":picture,
+            "projects":projects
+            }
 
 #Flask
 
@@ -540,11 +538,9 @@ def user_profile():
          
             if extension in valid_extension:
                 filename = f"{str(uuid.uuid4())}.{extension}"
-                print(os.getcwd())
-                print(os.path.abspath("uploads"))
-                print(os.path.exists("uploads"))
+        
                 file.save(f"uploads/{filename}")
-                updateImg = User().messenger_images(filename)
+                Pictures.upload_image(filename)
                 
 
 
@@ -560,17 +556,11 @@ def user_profile():
         else:
             changes['password'] = None
             
-        
-
-        
-    
-        update_user = User()
-        update_user.update(changes)
+        User.update(changes)
 
         if 'username' in changes: session['username'] = changes['username']
         if 'user_mail' in changes: session['user_mail'] = changes['user_mail']
         if 'password' in changes: session['password'] = changes['password']
-       
     return render_template('user-profile.html')
 @app.route('/uploads/<filename>')
 def uploads_filename(filename):

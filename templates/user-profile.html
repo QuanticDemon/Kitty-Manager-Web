@@ -7,14 +7,14 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
 </head>
 <body class="profile">
-    {% if is_logged_in %}
+    {% if user %}
     <a id="back" href="{{url_for('home')}}">Regresar</a>
     <div class="profile-container">
         <button type="button" id="edit-profile">Edit profile</button>
     
         <div class="user-image">
-        {% if userpic %} 
-            <img id="image-user" src="{{userpic}}" alt="">
+        {% if picture %} 
+        <img id="image-user" src="{{picture}}" alt="">
         {% else %}
             <img src="{{url_for('static', filename='images/defaultkittyprofile.png')}}" alt="">
         {% endif %}
@@ -22,14 +22,14 @@
         
        
        
-        <h1 >{{username}}</h1>
+        <h1 >{{user.username}}</h1>
         
             <label for="username">Username:</label>
-            <input  name="username" type="text" disabled placeholder="{{username}}">
+            <input  name="username" type="text" disabled placeholder="{{user.username}}">
             <br>
             <br>
             <label for="mail">Email:</label>
-            <input  name="mail" type="text" disabled placeholder="{{mail}}">
+            <input  name="mail" type="text" disabled placeholder="{{user.mail}}">
             <br>
             <br>
             <label for="password">Password:</label>
@@ -49,11 +49,11 @@
         </div>
         
                 <label for="username">Username:</label>
-                <input  name="username" type="text" disabled placeholder="{{username}}" id="username"> <button type="button" id="nameEdit">Editar</button>
+                <input  name="username" type="text" disabled placeholder="{{user.username}}" id="username"> <button type="button" id="nameEdit">Editar</button>
                 <br>
                 <br>
                 <label for="mail">Email:</label>
-                <input  name="mail" type="text" disabled placeholder="{{mail}}" id="mail"><button type="button" id="mailEdit">Editar</button>
+                <input  name="mail" type="text" disabled placeholder="{{user.mail}}" id="mail"><button type="button" id="mailEdit">Editar</button>
                 <br>
                 <br>
                 <label for="password">Password:</label>

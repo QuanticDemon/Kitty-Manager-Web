@@ -3,5 +3,5 @@
 {% block title %}Home{%endblock%}
 
 {% block content %}
-  {%if is_logged_in %}<h1 class="home_h1">{{username}}'s welcome</h1>{%endif%}
+  {%if is_logged_in %}<h1 class="home_h1">{{user.username}}'s welcome</h1>{%endif%}
 {%endblock%}
