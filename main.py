@@ -1,3 +1,4 @@
+
 from flask import * 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
@@ -285,52 +286,92 @@ class Storage_Service:
         return self.storage.add_file(datapkg)
 
 #files
-class Files:
-    def __init__(self, filename, extension, project_id):
-        self.filename = filename
-        self.extension = extension
-        self.project_id = project_id
+class Files(dbAlchemy.Model):
 
-    def create_file(self):
-        data_package={
-            "name":self.filename,
-            "type":self.extension,
-            "project_id":self.project_id
-        }
+    id = dbAlchemy.Column(
+        dbAlchemy.String(36),
+        primary_key = True,
+        default=lambda:str(uuid.uuid4())
+    )
 
-        sql3 = SQLite3("kitTest.db")
-        sql3.start_tables()
-        storage_service = Storage_Service(sql3)
-        storage_service.add_file_service(data_package)
+    name = dbAlchemy.Column(
+        dbAlchemy.String(100),
+        nullable = False
+    )
+
+    type_file = dbAlchemy.Column(
+        dbAlchemy.String(20),
+        nullable = False
+    )
+
+    project_id = dbAlchemy.Column(
+        dbAlchemy.String(36),
+        dbAlchemy.ForeignKey('project.id')
+    )
+   
+    @classmethod 
+    def create_file(cls, name, extension):
+        session_id = session.get('user_id')
+        project = None
+        if project is not None:
+            project = Project.query.filter_by(id_user = session_id).first()
+
+        file = cls(
+            name = name,
+            extension = extension,
+            project_id = project.id
+        )
+
+        dbAlchemy.session.add(file)
+        dbAlchemy.session.commit()
 
     
-
 
 
 
 
 #projects
-class Project:
-    def create_project(self, name, password):
-        print("Esto funciona")
-        if password:
+class Project(dbAlchemy.Model):
+    id = dbAlchemy.Column(
+        dbAlchemy.String(36),
+        primary_key = True,
+        default=lambda:str(uuid.uuid4())
+    )
 
-            hashing = hashlib.sha512(password.encode())
-            passHashed = hashing.hexdigest()
-            
-        else:
-            passHashed = None
-        
-        datapkg_project ={
-                    "project_name":name,
-                    "password_project":passHashed
-                    }
-        sql3 = SQLite3("kitTest.db")
-        sql3.start_tables()
-        serviceStorage=Storage_Service(sql3)
-        serviceStorage.add_project_service(datapkg_project)
-        print("Se han enviado los datos")
+    name = dbAlchemy.Column(
+        dbAlchemy.String(150),
+        nullable = False
+    )
+
+    password = dbAlchemy.Column(
+        dbAlchemy.String(150)
+    )
+
+    id_user = dbAlchemy.Column(
+        dbAlchemy.String(36),
+        dbAlchemy.ForeignKey('user.id')
+    )
     
+    @classmethod
+    def create_project(cls, name, password):
+        if password is not None:
+            hashing = hashlib.sha512(password.encode())
+            pass_priv = hashing.hexdigest()
+        else:
+            pass_priv = None
+
+        user_id = session.get('user_id')
+        project = cls(
+            name = name,
+            password = pass_priv,
+            id_user = user_id
+        )
+
+        dbAlchemy.session.add(project)
+        dbAlchemy.session.commit()
+
+
+
 #photos
 class Pictures(dbAlchemy.Model):
     id = dbAlchemy.Column(
@@ -442,7 +483,8 @@ class User(dbAlchemy.Model):
 @app.context_processor
 def inject_user_data():
     session_id = session.get("user_id")
-    projects =[]
+    projects = []
+    picture = None
     
 
     if 'user_id' not in session:
@@ -454,7 +496,18 @@ def inject_user_data():
 
     user = dbAlchemy.session.get(User, session_id)
     pictureRow= (Pictures.query.filter_by(id_user = session_id).order_by(Pictures.id.desc()).first())
-    picture = url_for('uploads_filename', filename=pictureRow.name)
+    
+    if pictureRow is not None:
+        picture = url_for('uploads_filename', filename=pictureRow.name)
+    projects = [
+        {
+            "id":p.id,
+            "name":p.name,
+            "has_password":p.password
+        }
+        for p in Project.query.filter_by(id_user = session_id).all()
+    ]
+
     return {
             "user":user,
             "picture":picture,
@@ -568,32 +621,20 @@ def uploads_filename(filename):
 
 @app.route('/projects/<project_id>')
 def projects(project_id):
-    conn = SQLite3("kitTest.db").conexion()
-    cursor = conn.cursor()
+    session_id = session.get('user_id')
+    project = None
+    files = None
 
-    cursor.execute(
-        """
-        SELECT name, password FROM projects WHERE id_project = ?
-        """,(
-            project_id,
-        )
-    )
-    project = cursor.fetchone()
-    cursor.execute(
-        """
-        SELECT * FROM files WHERE project_id=?
-        """,(
-            project_id,
-        )
-    )
-   
-    files = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    if not project:
+    project = Project.query.filter_by(id = project_id, id_user = session_id ).first()
+    files = Files.query.filter_by(project_id = project_id).all()
+    if project is None :
         return "Proyecto no existe", 404
+
+    if files is None:
+        return "Archivos no existen", 404
     return render_template('project.html', project=project, files=files, project_id=project_id)
+
+
 
 @app.route('/my-projects', methods=["GET","POST"])
 
@@ -603,15 +644,13 @@ def my_projects():
             data = request.get_json()
             name = data['name']
             password = data['pass']
-            create_project=Project()
-            create_project.create_project(name, password)
+            Project.create_project(name, password)
             return jsonify({"success":True})
 
         else:
             project_name = request.form.get("name-project")
             password_project = request.form.get("pass_project")
-            create_projecto=Project()
-            create_projecto.create_project(project_name, password_project)
+            Project.create_project(project_name, password_project)
 
             return redirect(url_for('my_projects'))
         
@@ -735,10 +774,11 @@ def files_creation(project_id):
         filename = data['filename']
         type_file = data['type_filename']
         filenameFull = filename+extension[type_file]
-        save_file_transport = Files(filenameFull, extension[type_file], project_id)
-        save_file_transport.create_file()
+        Files.create_file(filename, type_file)
+        
 
-        if save_file_transport == False:
+        file = Files.query.filter_by(project_id = project_id).first()
+        if not file:
             return {"success":False}, 404
 
 
@@ -775,10 +815,9 @@ def files_creation(project_id):
         filename = data['filename']
         type_file = data['type']
         filenameFull = filename+extension[type_file]
-        save_file_transport = Files(filenameFull, extension[type_file], project_id)
-        save_file_transport.create_file()
-
-        if save_file_transport == False:
+        Files.create_file(filename, type_file)
+        file = Files.query.filter_by(project_id = project_id).first()
+        if not file:
             return {"success":False}, 404
 
 
